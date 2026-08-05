@@ -4,6 +4,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const path = require("path");
 const crypto = require("crypto");
+const { createBlawgyCompat } = require("./lib/blawgy-compat");
 
 const root = __dirname;
 const port = Number(process.env.PORT || 5187);
@@ -28,6 +29,7 @@ const googleTokenIssuers = new Set(["accounts.google.com", "https://accounts.goo
 const maxBodyBytes = 64 * 1024;
 const maxJwksBytes = 128 * 1024;
 const accountStorePath = path.join(root, "data", "account-store.json");
+const enableBlawgyClient = process.env.SIR_BLOGGS_ENABLE_BLAWGY_CLIENT === "1";
 
 let googleJwksCache = {
   expiresAt: 0,
@@ -45,6 +47,14 @@ const types = {
   ".webp": "image/webp",
   ".svg": "image/svg+xml",
 };
+
+const blawgyCompat = createBlawgyCompat({
+  root,
+  readSessionUser,
+  readRequestJson,
+  sendJson,
+  publicUser,
+});
 
 function send(res, status, headers, body) {
   res.writeHead(status, headers);
@@ -68,6 +78,37 @@ function safeFile(urlPath) {
   const decoded = decodeURIComponent(urlPath.split("?")[0]);
   const normalized = path.normalize(decoded).replace(/^(\.\.[/\\])+/, "");
   return path.join(root, normalized === "/" ? "/index.html" : normalized);
+}
+
+function isBlawgyClientRoute(pathname) {
+  if (!enableBlawgyClient) return false;
+
+  const exactRoutes = new Set([
+    "/account",
+    "/dashboard",
+    "/keyword-finder",
+    "/pages",
+    "/reports",
+    "/seo-analysis",
+    "/ai-mentions",
+    "/api-docs",
+    "/invite",
+    "/success",
+    "/failure",
+    "/onboarding",
+    "/business",
+    "/subscribe",
+    "/alex-hormozi-offer-ai",
+    "/article-builder",
+  ]);
+
+  return (
+    exactRoutes.has(pathname) ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/preview/") ||
+    pathname.startsWith("/sample/") ||
+    pathname.startsWith("/hormozi/offers/")
+  );
 }
 
 function authError(message, status = 401) {
@@ -731,6 +772,10 @@ async function serveApi(req, res, url) {
     return serveAccountApi(req, res, url);
   }
 
+  if (await blawgyCompat.serve(req, res, url)) {
+    return true;
+  }
+
   return false;
 }
 
@@ -751,7 +796,7 @@ async function serveStatic(req, res) {
     }
   }
 
-  let filePath = safeFile(req.url);
+  let filePath = isBlawgyClientRoute(url.pathname) ? path.join(root, "blawgy-app.html") : safeFile(req.url);
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, "index.html");
   }
@@ -787,6 +832,10 @@ function createServer() {
         if (!handled) {
           sendJson(res, 404, { ok: false, error: "Not found." });
         }
+        return;
+      }
+
+      if (await blawgyCompat.serve(req, res, url)) {
         return;
       }
 

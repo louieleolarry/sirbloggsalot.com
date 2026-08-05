@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#EA580B" />
+  <meta name="description" content="SEO on autopilot with daily articles" />
+  <title>Blawgy</title>
+  <link href="/static/css/main.371b1f5a.css" rel="stylesheet" />
+  <style>
+    @media (max-width: 640px) {
+      .fixed.z-\[10001\].w-\[380px\] {
+        left: 50% !important;
+        right: auto !important;
+        width: calc(100vw - 32px) !important;
+        max-width: 380px !important;
+        transform: translateX(-50%) !important;
+      }
+    }
+  </style>
+  <script>
+    (function () {
+      var site = "sirbloggsalot.com";
+      var subscription = {
+        isActive: true,
+        plan: "growth",
+        credits: 847,
+        maxCredits: 1000
+      };
+      var fallbackUser = {
+        id: "local-blawgy-app",
+        email: "owner@sirbloggsalot.com",
+        name: "Sir Bloggsalot Owner",
+        picture: "",
+        role: "admin"
+      };
+
+      window.__BLAWGY_API_BASE__ = window.location.origin;
+      window.fbq = window.fbq || function () {};
+      window.fbq.loaded = true;
+      window.fbq.version = "2.0";
+      window.fbq.queue = [];
+      window._fbq = window.fbq;
+
+      function localRequest(url) {
+        try {
+          return new URL(url, window.location.origin).origin === window.location.origin;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function encodeBearerPayload(payload) {
+        var json = JSON.stringify(payload);
+        return btoa(json).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      }
+
+      function installLocalSession(sessionUser) {
+        var user = sessionUser && sessionUser.email ? sessionUser : fallbackUser;
+        var email = String(user.email || fallbackUser.email).toLowerCase();
+        var name = user.name || email;
+        var picture = user.picture || "";
+        var role = user.role === "admin" ? "admin" : "client";
+        var subject = user.id || user.sub || email;
+        var bearerPayload = {
+          sub: subject,
+          email: email,
+          name: name,
+          picture: picture,
+          role: role
+        };
+        var bearer = "Bearer local." + encodeBearerPayload(bearerPayload) + ".sig";
+        var token = bearer.replace(/^Bearer\s+/i, "");
+
+        window.__BLAWGY_LOCAL_BEARER__ = bearer;
+        window.__BLAWGY_LOCAL_TOKEN__ = token;
+        window.__BLAWGY_LOCAL_USER__ = {
+          id: subject,
+          uid: subject,
+          email: email,
+          name: name,
+          displayName: name,
+          picture: picture,
+          photoURL: picture,
+          role: role,
+          isAdmin: role === "admin",
+          sites: [{ site: site, email: email }],
+          blogType: "wordpress",
+          subscription: subscription,
+          getIdToken: function () {
+            return Promise.resolve(window.__BLAWGY_LOCAL_TOKEN__);
+          },
+          getIdTokenResult: function () {
+            return Promise.resolve({ token: window.__BLAWGY_LOCAL_TOKEN__ });
+          }
+        };
+        window.__BLAWGY_LOCAL_AUTH__ = {
+          currentUser: window.__BLAWGY_LOCAL_USER__,
+          onAuthStateChanged: function (callback) {
+            setTimeout(function () {
+              callback(window.__BLAWGY_LOCAL_USER__);
+            }, 0);
+            return function () {};
+          },
+          signOut: function () {
+            return fetch("/api/auth/logout", {
+              method: "POST",
+              headers: { "content-type": "application/json" }
+            }).finally(function () {
+              window.__BLAWGY_LOCAL_AUTH__.currentUser = null;
+            });
+          }
+        };
+        window.__BLAWGY_LOCAL_SITE__ = {
+          site: site,
+          email: email,
+          settings: {
+            site: site,
+            blogType: "wordpress",
+            product: "Automated SEO articles and content planning for local businesses.",
+            gsc: {
+              connected_site: "sc-domain:" + site
+            }
+          },
+          success: true,
+          onboard: true,
+          blogType: "wordpress",
+          subscription: subscription
+        };
+
+        try {
+          localStorage.removeItem("useMockData");
+          localStorage.removeItem("useMockAdmin");
+          localStorage.setItem("currentSite", JSON.stringify({ site: site, email: email }));
+        } catch (error) {
+          console.warn("Could not seed local Blawgy state", error);
+        }
+
+        return bearer;
+      }
+
+      var localBearer = installLocalSession(fallbackUser);
+
+      if (window.fetch) {
+        var originalFetch = window.fetch;
+        window.fetch = function (input, init) {
+          var url = typeof input === "string" ? input : input && input.url;
+          if (localRequest(url)) {
+            init = init || {};
+            var headers = new Headers(init.headers || (input && input.headers) || {});
+            if (!headers.has("authorization")) headers.set("authorization", localBearer);
+            init.headers = headers;
+          }
+          return originalFetch.call(this, input, init);
+        };
+      }
+
+      var originalOpen = XMLHttpRequest.prototype.open;
+      var originalSend = XMLHttpRequest.prototype.send;
+
+      XMLHttpRequest.prototype.open = function (method, url) {
+        this.__blawgyLocalUrl = url;
+        return originalOpen.apply(this, arguments);
+      };
+
+      XMLHttpRequest.prototype.send = function () {
+        if (localRequest(this.__blawgyLocalUrl)) {
+          try {
+            this.setRequestHeader("authorization", localBearer);
+          } catch (error) {
+            console.warn("Could not attach local Blawgy bearer", error);
+          }
+        }
+        return originalSend.apply(this, arguments);
+      };
+
+      function loadBlawgyBundle() {
+        var script = document.createElement("script");
+        script.src = "/static/js/main.715d1cb0.local.js";
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+
+      fetch("/api/auth/session", {
+        headers: { accept: "application/json" }
+      })
+        .then(function (response) {
+          return response.ok ? response.json() : null;
+        })
+        .then(function (session) {
+          if (session && session.authenticated && session.user) {
+            localBearer = installLocalSession(session.user);
+          }
+        })
+        .catch(function () {
+          localBearer = installLocalSession(fallbackUser);
+        })
+        .finally(loadBlawgyBundle);
+    })();
+  </script>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+</body>
+</html>
