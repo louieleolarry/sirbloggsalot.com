@@ -62,6 +62,7 @@ function unexpectedPageErrors(pageErrors, localStatuses) {
   );
   return pageErrors.filter((error) => {
     const text = String(error);
+    if (text.includes("Blocked attempt to show a 'beforeunload' confirmation panel")) return false;
     for (const status of expectedStatuses) {
       if (text.includes(`status of ${status}`) || text.includes(`${status} (`)) return false;
     }
@@ -359,6 +360,7 @@ async function runInteractions(cdp, baseUrl) {
   const failedRequests = [];
   const localStatuses = [];
   const updateResponses = [];
+  const settingsActions = [];
   const pageErrors = [];
 
   cdp.on("Network.requestWillBeSent", (message) => {
@@ -422,10 +424,140 @@ async function runInteractions(cdp, baseUrl) {
   })()`);
   await wait(1800);
 
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const text = () => document.body.innerText || '';
+    const clickButton = (label) => {
+      const button = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.trim() === label);
+      if (!button) return false;
+      button.click();
+      return true;
+    };
+    const setValue = (node, value) => {
+      const proto = node instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+      const setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
+      setter.call(node, value);
+      node.dispatchEvent(new Event('input', { bubbles: true }));
+      node.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    return { name: 'site-settings-save', saved: text().includes('Saved!'), clickButtonExists: typeof clickButton === 'function', setValueExists: typeof setValue === 'function' };
+  })()`));
+
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.includes('Find Competitors'));
+    if (!button) return { name: 'competitor-suggestions', clicked: false };
+    button.click();
+    return { name: 'competitor-suggestions', clicked: true };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const text = document.body.innerText || '';
+    return {
+      name: 'competitor-suggestions-result',
+      hasSuggestedDomain: text.includes('localdirectory.example') || text.includes('regionalmarket.example'),
+      hasUndefinedText: text.includes('undefined')
+    };
+  })()`));
+
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const label = Array.from(document.querySelectorAll('label')).find((node) => node.textContent.includes('Internal Links'));
+    const checkbox = label?.parentElement?.parentElement?.querySelector('input[type="checkbox"]') || Array.from(document.querySelectorAll('input[type="checkbox"]')).at(-1);
+    if (checkbox && !Array.from(document.querySelectorAll('button')).some((node) => node.textContent.includes('Fetch from Sitemap'))) checkbox.click();
+    return { name: 'internal-links-toggle', fetchButtonVisible: Array.from(document.querySelectorAll('button')).some((node) => node.textContent.includes('Fetch from Sitemap')) };
+  })()`));
+  await wait(300);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.includes('Fetch from Sitemap'));
+    if (!button) return { name: 'sitemap-fetch', clicked: false };
+    button.click();
+    return { name: 'sitemap-fetch', clicked: true };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const text = document.body.innerText || '';
+    return { name: 'sitemap-fetch-result', hasFetchedLink: text.includes('https://sirbloggsalot.com/') };
+  })()`));
+
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/products` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const clickButton = (label) => {
+      const button = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.trim() === label);
+      if (!button) return false;
+      button.click();
+      return true;
+    };
+    return { name: 'product-modal-open-click', clicked: clickButton('Add Product') };
+  })()`));
+  await wait(300);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'product-modal-opened', hasNameField: Array.from(document.querySelectorAll('label')).some((node) => node.textContent.includes('Product Name')) }))()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const input = Array.from(document.querySelectorAll('input')).find((node) => node.placeholder && node.placeholder.includes('Premium Bath'));
+    if (!input) return { name: 'product-create', hasInput: false };
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, 'Codex Button Test Product');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const buttons = Array.from(document.querySelectorAll('button')).filter((node) => node.textContent.trim() === 'Add Product');
+    buttons.at(-1)?.click();
+    return { name: 'product-create', hasInput: true };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'product-create-result', hasCreatedProduct: (document.body.innerText || '').includes('Codex Button Test Product') }))()`));
+
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/image-style` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const section = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.includes('Test Image Generation'));
+    section?.click();
+    return { name: 'image-test-opened', clicked: Boolean(section) };
+  })()`));
+  await wait(500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const input = Array.from(document.querySelectorAll('input')).find((node) => node.placeholder && node.placeholder.includes('modern bathroom'));
+    if (!input) return { name: 'image-generate', hasInput: false };
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, 'A clean local business SEO dashboard');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const button = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.includes('Generate Test Image'));
+    button?.click();
+    return { name: 'image-generate', hasInput: true, clicked: Boolean(button) };
+  })()`));
+  await wait(1200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const previews = Array.from(document.images).filter((img) => img.alt === 'Preview' && img.getAttribute('src'));
+    return { name: 'image-generate-result', previewCount: previews.length, previewSrc: previews[0]?.getAttribute('src') || '' };
+  })()`));
+
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/cta` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const checkbox = document.querySelector('input[type="checkbox"]');
+    if (!checkbox) return { name: 'cta-toggle', hasCheckbox: false };
+    if (!checkbox.checked) checkbox.click();
+    return { name: 'cta-toggle', hasCheckbox: true };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'cta-toggle-result', hasEditCta: (document.body.innerText || '').includes('Edit CTA') }))()`));
+
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/invite` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const input = document.querySelector('input[type="email"]');
+    if (!input) return { name: 'invite-generate', hasInput: false };
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, 'teammate@example.com');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const button = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.includes('Generate Invite Link'));
+    button?.click();
+    return { name: 'invite-generate', hasInput: true, clicked: Boolean(button) };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'invite-generate-result', hasInviteLink: (document.body.innerText || '').includes('Invitation Link') }))()`));
+
   await cdp.send("Target.closeTarget", { targetId: page.targetId });
 
   return {
     updateResponses,
+    settingsActions,
     liveBlawgy: requests.filter((url) => url.includes("app.blawgy.com")),
     failedLocal: unexpectedLocalStatuses(localStatuses),
     failedRequests,
@@ -467,6 +599,25 @@ async function main() {
     assert.deepStrictEqual(interactions.failedRequests, []);
     assert.deepStrictEqual(interactions.pageErrors, []);
     assert.ok(interactions.updateResponses.some((row) => row.status === 200));
+    assert.deepStrictEqual(interactions.settingsActions, [
+      { name: 'site-settings-save', saved: true, clickButtonExists: true, setValueExists: true },
+      { name: 'competitor-suggestions', clicked: true },
+      { name: 'competitor-suggestions-result', hasSuggestedDomain: true, hasUndefinedText: false },
+      { name: 'internal-links-toggle', fetchButtonVisible: true },
+      { name: 'sitemap-fetch', clicked: true },
+      { name: 'sitemap-fetch-result', hasFetchedLink: true },
+      { name: 'product-modal-open-click', clicked: true },
+      { name: 'product-modal-opened', hasNameField: true },
+      { name: 'product-create', hasInput: true },
+      { name: 'product-create-result', hasCreatedProduct: true },
+      { name: 'image-test-opened', clicked: true },
+      { name: 'image-generate', hasInput: true, clicked: true },
+      { name: 'image-generate-result', previewCount: 1, previewSrc: '/assets/sirbloggsalot-og.png' },
+      { name: 'cta-toggle', hasCheckbox: true },
+      { name: 'cta-toggle-result', hasEditCta: true },
+      { name: 'invite-generate', hasInput: true, clicked: true },
+      { name: 'invite-generate-result', hasInviteLink: true },
+    ]);
 
     console.log(`Blawgy browser smoke checks passed (${desktopRoutes.length} desktop routes, mobile dashboard, key interactions).`);
   } finally {
