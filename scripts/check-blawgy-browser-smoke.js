@@ -550,6 +550,34 @@ async function runInteractions(cdp, baseUrl) {
   await wait(1000);
   settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'product-create-result', hasCreatedProduct: (document.body.innerText || '').includes('Codex Button Test Product') }))()`));
   settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    window.confirm = () => true;
+    const button = Array.from(document.querySelectorAll('button[title="Archive product"]')).find((node) => {
+      let parent = node.parentElement;
+      for (let index = 0; index < 8 && parent; index += 1) {
+        if ((parent.innerText || '').includes('Codex Button Test Product')) return true;
+        parent = parent.parentElement;
+      }
+      return false;
+    });
+    button?.click();
+    return { name: 'product-archive-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const productsRes = await fetch('/api/products/sirbloggsalot.com', { headers });
+    const products = await productsRes.json();
+    const archived = (products.products || []).find((product) => product.name === 'Codex Button Test Product');
+    return {
+      name: 'product-archive-readback',
+      productsStatus: productsRes.status,
+      archivedStatus: archived?.status || null,
+      archivedCount: products.counts?.archived || 0,
+      stillVisible: (document.body.innerText || '').includes('Codex Button Test Product')
+    };
+  })()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
     const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Connect');
     button?.click();
     return { name: 'dutchie-connect-open', clicked: Boolean(button) };
@@ -1465,6 +1493,8 @@ async function main() {
       { name: 'product-modal-opened', hasNameField: true },
       { name: 'product-create', hasInput: true },
       { name: 'product-create-result', hasCreatedProduct: true },
+      { name: 'product-archive-click', clicked: true, disabled: false },
+      { name: 'product-archive-readback', productsStatus: 200, archivedStatus: 'archived', archivedCount: 1, stillVisible: false },
       { name: 'dutchie-connect-open', clicked: true },
       { name: 'dutchie-form-fill', filled: true },
       { name: 'dutchie-connect-click', clicked: true, disabled: false },

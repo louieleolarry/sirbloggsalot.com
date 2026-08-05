@@ -295,6 +295,14 @@ async function main() {
     assert.strictEqual(aiMentionsHistory.payload.needsUpgrade, true);
     assert.strictEqual((await request(base, "POST", `/api/ai-mentions/${site}/refresh`)).success, true);
 
+    const archivalProduct = await request(base, "POST", `/api/products/${site}`, { name: "Compat Archive Product", description: "Should soft-delete." });
+    assert.ok(archivalProduct.product._id);
+    assert.strictEqual((await request(base, "DELETE", `/api/products/${site}/${archivalProduct.product._id}`)).success, true);
+    const afterArchiveProduct = await request(base, "GET", `/api/products/${site}`);
+    const archivedProduct = afterArchiveProduct.products.find((product) => product._id === archivalProduct.product._id);
+    assert.strictEqual(archivedProduct.status, "archived");
+    assert.ok(afterArchiveProduct.counts.archived >= 1);
+
     const webhook = await request(base, "POST", "/api/webhooks", { name: "Compat Hook", webhookUrl: "https://example.com/hook" });
     assert.ok(webhook.webhook.id);
     assert.ok(Array.isArray((await request(base, "GET", "/api/webhooks")).webhooks));
