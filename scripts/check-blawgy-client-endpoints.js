@@ -126,6 +126,32 @@ async function seedFixtures(baseUrl) {
   assert.strictEqual(plan.status, 200);
   const planEntryId = plan.payload.entries[0].id;
 
+  const legacyEntry = await request(baseUrl, "POST", `/api/plan/${site}/add`, {
+    keyword: "Endpoint smoke legacy command",
+    clusterLabel: "Endpoint Smoke Legacy",
+  });
+  assert.strictEqual(legacyEntry.status, 200);
+  const generateEntry = await request(baseUrl, "POST", `/api/plan/${site}/add`, {
+    keyword: "Endpoint smoke generate command",
+    clusterLabel: "Endpoint Smoke Generate",
+  });
+  assert.strictEqual(generateEntry.status, 200);
+  const cancelEntry = await request(baseUrl, "POST", `/api/plan/${site}/add`, {
+    keyword: "Endpoint smoke cancel command",
+    clusterLabel: "Endpoint Smoke Cancel",
+  });
+  assert.strictEqual(cancelEntry.status, 200);
+  const bulkEntryOne = await request(baseUrl, "POST", `/api/plan/${site}/add`, {
+    keyword: "Endpoint smoke bulk delete one",
+    clusterLabel: "Endpoint Smoke Bulk",
+  });
+  assert.strictEqual(bulkEntryOne.status, 200);
+  const bulkEntryTwo = await request(baseUrl, "POST", `/api/plan/${site}/add`, {
+    keyword: "Endpoint smoke bulk delete two",
+    clusterLabel: "Endpoint Smoke Bulk",
+  });
+  assert.strictEqual(bulkEntryTwo.status, 200);
+
   const product = await request(baseUrl, "POST", `/api/products/${site}`, {
     name: "Endpoint Smoke Product",
     description: "Seeded for local Blawgy endpoint smoke.",
@@ -161,6 +187,10 @@ async function seedFixtures(baseUrl) {
     site,
     email,
     planEntryId,
+    legacyCommandEntryId: legacyEntry.payload.entry.id,
+    generateEntryId: generateEntry.payload.entry.id,
+    cancelEntryId: cancelEntry.payload.entry.id,
+    bulkDeleteEntryIds: [bulkEntryOne.payload.entry.id, bulkEntryTwo.payload.entry.id],
     productId: product.payload.product._id,
     profileId: profile.payload.profile.id,
     draftId: draft.payload.draft.id,
@@ -177,6 +207,7 @@ async function seedFixtures(baseUrl) {
 function substituteExpression(expression, fixtures, template) {
   const lower = expression.toLowerCase();
   if (template.includes("/api/plan/") && lower === "id") return fixtures.planEntryId;
+  if (template.includes("/generate-blog/") && lower === "id") return fixtures.generateEntryId;
   if (template.includes("/api/pages/business-profiles/") && lower === "id") return fixtures.profileId;
   if (template.includes("/api/products/") && lower.includes("id")) return fixtures.productId;
   if (template.includes("/api/webhooks/") && lower.includes("id")) return fixtures.webhookId;
@@ -219,6 +250,11 @@ function bodyFor(call, fixtures) {
     website: site,
     url: `https://${site}`,
     title: "Endpoint smoke article",
+    id: fixtures.legacyCommandEntryId,
+    blogId: fixtures.cancelEntryId,
+    blogIds: fixtures.bulkDeleteEntryIds,
+    publishDate: "2026-09-06T12:00:00.000Z",
+    blogContent: "<p>Endpoint smoke content command body.</p>",
     prompt: "Endpoint smoke article",
     event: "blog.created",
     name: "Endpoint Smoke",

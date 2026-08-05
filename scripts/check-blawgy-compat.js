@@ -170,6 +170,53 @@ async function main() {
     assert.strictEqual(moved.success, true);
     assert.strictEqual(moved.entry.publishDate, "2026-09-01T12:00:00.000Z");
 
+    const generatedLegacy = await request(base, "PUT", `/generate-blog/${added.entry.id}`, { site });
+    assert.strictEqual(generatedLegacy.success, true);
+    assert.strictEqual(generatedLegacy.blogStatus, "in_queue");
+    assert.strictEqual((await request(base, "GET", `/api/plan/${site}`)).entries.find((entry) => entry.id === added.entry.id).blogStatus, "in_queue");
+
+    const savedLegacy = await request(base, "POST", "/save-post", {
+      site,
+      id: added.entry.id,
+      title: "Saved content plan command title",
+      keywords: "saved keyword, second keyword",
+      publishDate: "2026-09-02T12:00:00.000Z",
+      blogContent: "<p>Saved by the legacy dashboard command route.</p>",
+      productIds: ["prod_compat"],
+    });
+    assert.strictEqual(savedLegacy.success, true);
+    assert.strictEqual(savedLegacy.article.title, "Saved content plan command title");
+    const savedLegacyPlan = await request(base, "GET", `/api/plan/${site}`);
+    const savedLegacyEntry = savedLegacyPlan.entries.find((entry) => entry.id === added.entry.id);
+    assert.strictEqual(savedLegacyEntry.title, "Saved content plan command title");
+    assert.strictEqual(savedLegacyEntry.blogContent, true);
+    assert.strictEqual(savedLegacyEntry.publishDate, "2026-09-02T12:00:00.000Z");
+    assert.ok((await request(base, "GET", `/blog-content?site=${site}&id=${added.entry.id}`)).blogContent.includes("legacy dashboard command"));
+
+    assert.strictEqual((await request(base, "POST", "/update-publish-date", {
+      site,
+      id: added.entry.id,
+      publishDate: "2026-09-03T12:00:00.000Z",
+    })).success, true);
+    assert.strictEqual((await request(base, "GET", `/api/plan/${site}`)).entries.find((entry) => entry.id === added.entry.id).publishDate, "2026-09-03T12:00:00.000Z");
+    assert.strictEqual((await request(base, "POST", "/publish-draft", { site, id: added.entry.id })).success, true);
+    assert.strictEqual((await request(base, "GET", `/api/plan/${site}`)).entries.find((entry) => entry.id === added.entry.id).blogStatus, "published");
+    assert.strictEqual((await request(base, "POST", "/republish-article", { site, id: added.entry.id })).success, true);
+    const republishedEntry = (await request(base, "GET", `/api/plan/${site}`)).entries.find((entry) => entry.id === added.entry.id);
+    assert.strictEqual(republishedEntry.blogStatus, "published");
+    assert.ok(republishedEntry.publishedUrl);
+
+    assert.strictEqual((await request(base, "PUT", "/cancel-blog-posting", { site, blogId: added.entry.id })).success, true);
+    assert.ok(!(await request(base, "GET", `/api/plan/${site}`)).entries.some((entry) => entry.id === added.entry.id));
+    const bulkOne = await request(base, "POST", `/api/plan/${site}/add`, { keyword: "bulk delete one", clusterLabel: "Bulk Delete" });
+    const bulkTwo = await request(base, "POST", `/api/plan/${site}/add`, { keyword: "bulk delete two", clusterLabel: "Bulk Delete" });
+    assert.strictEqual((await request(base, "PUT", "/bulk-delete-premises", {
+      siteDomain: site,
+      blogIds: [bulkOne.entry.id, bulkTwo.entry.id],
+    })).success, true);
+    const afterBulkDelete = await request(base, "GET", `/api/plan/${site}`);
+    assert.ok(!afterBulkDelete.entries.some((entry) => [bulkOne.entry.id, bulkTwo.entry.id].includes(entry.id)));
+
     assert.strictEqual((await request(base, "GET", `/api/plan/${site}/topic-adds`)).success, true);
     assert.strictEqual((await request(base, "PATCH", `/api/plan/${site}/config`, { manualKeywordRatio: 55 })).config.manualKeywordRatio, 55);
     assert.strictEqual((await request(base, "POST", `/api/plan/${site}/topics/exclude`, { topic: "Compatibility" })).success, true);

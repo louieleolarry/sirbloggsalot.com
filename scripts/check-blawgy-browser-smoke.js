@@ -826,6 +826,85 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
 
+  await cdp.send("Page.navigate", { url: `${baseUrl}/dashboard` }, page.sessionId);
+  await wait(1200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const jsonHeaders = {
+      'content-type': 'application/json',
+      ...(token ? { authorization: 'Bearer ' + token } : {})
+    };
+    const readHeaders = token ? { authorization: 'Bearer ' + token } : {};
+    const addRes = await fetch('/api/plan/sirbloggsalot.com/add', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        keyword: 'browser content command readback',
+        clusterLabel: 'Browser Content Commands',
+        source: 'manual'
+      })
+    });
+    const added = await addRes.json();
+    const id = added.entry?.id;
+    const generateRes = await fetch('/generate-blog/' + id, {
+      method: 'PUT',
+      headers: jsonHeaders,
+      body: JSON.stringify({ site: 'sirbloggsalot.com' })
+    });
+    const saveRes = await fetch('/save-post', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        site: 'sirbloggsalot.com',
+        id,
+        title: 'Browser content command title',
+        keywords: 'browser command keyword',
+        publishDate: '2026-09-04T12:00:00.000Z',
+        blogContent: '<p>Browser dashboard command content persisted.</p>'
+      })
+    });
+    const dateRes = await fetch('/update-publish-date', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ site: 'sirbloggsalot.com', id, publishDate: '2026-09-05T12:00:00.000Z' })
+    });
+    const publishRes = await fetch('/publish-draft', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ site: 'sirbloggsalot.com', id })
+    });
+    const planRes = await fetch('/api/plan/sirbloggsalot.com', { headers: readHeaders });
+    const plan = await planRes.json();
+    const entry = (plan.entries || []).find((row) => row.id === id);
+    const contentRes = await fetch('/blog-content?site=sirbloggsalot.com&id=' + encodeURIComponent(id), { headers: readHeaders });
+    const content = await contentRes.json();
+    const cancelRes = await fetch('/cancel-blog-posting', {
+      method: 'PUT',
+      headers: jsonHeaders,
+      body: JSON.stringify({ siteDomain: 'sirbloggsalot.com', blogId: id })
+    });
+    const afterCancelRes = await fetch('/api/plan/sirbloggsalot.com', { headers: readHeaders });
+    const afterCancel = await afterCancelRes.json();
+    return {
+      name: 'content-plan-command-readback',
+      addStatus: addRes.status,
+      generateStatus: generateRes.status,
+      saveStatus: saveRes.status,
+      dateStatus: dateRes.status,
+      publishStatus: publishRes.status,
+      planStatus: planRes.status,
+      title: entry?.title || null,
+      blogStatus: entry?.blogStatus || null,
+      publishDate: entry?.publishDate || null,
+      hasContent: entry?.blogContent === true,
+      contentStatus: contentRes.status,
+      contentPersisted: String(content.blogContent || '').includes('Browser dashboard command content persisted'),
+      cancelStatus: cancelRes.status,
+      afterCancelStatus: afterCancelRes.status,
+      removedAfterCancel: !(afterCancel.entries || []).some((row) => row.id === id)
+    };
+  })()`));
+
   settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
     const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
     const jsonHeaders = {
@@ -1174,6 +1253,7 @@ async function main() {
       { name: 'cms-framer-test-click', clicked: true, disabled: false },
       { name: 'cms-framer-test-result', settingsStatus: 200, hasSavedMessage: true, hasMismatchError: false, blogType: 'framer', collectionId: 'blog', hasTitleMap: true, hasBodyMap: true, hasHeroMap: true },
       { name: 'article-builder-save-readback', pathname: '/article-builder', draftStatus: 200, saveStatus: 200, publishStatus: 200, rowsStatus: 200, publishSuccess: true, matchCount: 1, hasSavedContent: true, savedId: articleBuilderReadback.savedId, readbackId: articleBuilderReadback.savedId },
+      { name: 'content-plan-command-readback', addStatus: 200, generateStatus: 200, saveStatus: 200, dateStatus: 200, publishStatus: 200, planStatus: 200, title: 'Browser content command title', blogStatus: 'published', publishDate: '2026-09-05T12:00:00.000Z', hasContent: true, contentStatus: 200, contentPersisted: true, cancelStatus: 200, afterCancelStatus: 200, removedAfterCancel: true },
       { name: 'billing-switch-cancel-readback', switchStatus: 200, switchPlanId: 'growth_annual', switchedReadbackStatus: 200, switchedReadbackPlanId: 'growth_annual', cancelStatus: 200, hasEndsAt: true, cancelledReadbackStatus: 200, cancelAtPeriodEnd: true, cancellationReason: 'browser budget check', cancelledStatus: 'active_until_period_end', stillActiveUntilEnd: true },
     ]);
 
