@@ -1022,6 +1022,83 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
 
+  await cdp.send("Page.navigate", { url: `${baseUrl}/reports?select_domain=true&token=local` }, page.sessionId);
+  await wait(2200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const text = document.body.innerText || '';
+    const propertyButton = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').includes('sc-domain:sirbloggsalot.com'));
+    propertyButton?.click();
+    return {
+      name: 'gsc-domain-select-click',
+      hasSelectionHeading: text.includes('Select Your Website'),
+      clicked: Boolean(propertyButton)
+    };
+  })()`));
+  await wait(3200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const readHeaders = token ? { authorization: 'Bearer ' + token } : {};
+    const settingsRes = await fetch('/site-settings?site=sirbloggsalot.com', { headers: readHeaders });
+    const settings = await settingsRes.json();
+    const trafficRes = await fetch('/gsc/data?site=sirbloggsalot.com&filters[dimensions][]=date', { headers: readHeaders });
+    const traffic = await trafficRes.json();
+    const pagesRes = await fetch('/gsc/data?site=sirbloggsalot.com&filters[dimensions][]=page', { headers: readHeaders });
+    const pages = await pagesRes.json();
+    const queriesRes = await fetch('/gsc/data?site=sirbloggsalot.com&filters[dimensions][]=query', { headers: readHeaders });
+    const queries = await queriesRes.json();
+    const text = document.body.innerText || '';
+    return {
+      name: 'gsc-connect-readback',
+      settingsStatus: settingsRes.status,
+      connectedSite: settings.settings?.gsc?.connected_site || null,
+      hasAccessToken: Boolean(settings.settings?.gsc?.access_token),
+      trafficStatus: trafficRes.status,
+      trafficRows: Array.isArray(traffic.rows) ? traffic.rows.length : 0,
+      pagesStatus: pagesRes.status,
+      hasSitePage: Boolean((pages.rows || []).find((row) => String(row.keys?.[0] || '').includes('sirbloggsalot.com'))),
+      queriesStatus: queriesRes.status,
+      hasLocalQuery: Boolean((queries.rows || []).find((row) => String(row.keys?.[0] || '').includes('local'))),
+      hasConnectedCopy: text.includes('Connected to: sirbloggsalot.com')
+    };
+  })()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => node.innerHTML.includes('M18.364 18.364'));
+    button?.click();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const text = document.body.innerText || '';
+    return {
+      name: 'gsc-disconnect-open',
+      clicked: Boolean(button),
+      hasConfirmCopy: text.includes('Disconnect Google Search Console?')
+    };
+  })()`));
+  await wait(400);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Disconnect');
+    button?.click();
+    return {
+      name: 'gsc-disconnect-confirm-click',
+      clicked: Boolean(button),
+      disabled: Boolean(button?.disabled)
+    };
+  })()`));
+  await wait(2200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const readHeaders = token ? { authorization: 'Bearer ' + token } : {};
+    const settingsRes = await fetch('/site-settings?site=sirbloggsalot.com', { headers: readHeaders });
+    const settings = await settingsRes.json();
+    const dataRes = await fetch('/gsc/data?site=sirbloggsalot.com', { headers: readHeaders });
+    const text = document.body.innerText || '';
+    return {
+      name: 'gsc-disconnect-readback',
+      settingsStatus: settingsRes.status,
+      gscIsNull: settings.settings?.gsc === null,
+      dataStatus: dataRes.status,
+      hasConnectCopy: text.includes('Connect Google Search Console')
+    };
+  })()`));
+
   settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
     const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
     const jsonHeaders = {
@@ -1422,6 +1499,11 @@ async function main() {
       { name: 'billing-modal-open-click', clicked: true },
       { name: 'billing-modal-switch-click', hasCurrentSubscription: true, clicked: true, disabled: false },
       { name: 'billing-modal-switch-readback', readbackStatus: 200, planId: 'growth_annual', hasSuccessBanner: true },
+      { name: 'gsc-domain-select-click', hasSelectionHeading: true, clicked: true },
+      { name: 'gsc-connect-readback', settingsStatus: 200, connectedSite: 'sc-domain:sirbloggsalot.com', hasAccessToken: true, trafficStatus: 200, trafficRows: 7, pagesStatus: 200, hasSitePage: true, queriesStatus: 200, hasLocalQuery: true, hasConnectedCopy: true },
+      { name: 'gsc-disconnect-open', clicked: true, hasConfirmCopy: true },
+      { name: 'gsc-disconnect-confirm-click', clicked: true, disabled: false },
+      { name: 'gsc-disconnect-readback', settingsStatus: 200, gscIsNull: true, dataStatus: 500, hasConnectCopy: true },
       { name: 'keyword-metadata-readback', saveStatus: 200, savedStatus: 200, seoStatus: 200, keywordStatusStatus: 200, savedVolume: 789, savedDifficulty: 31, savedSource: 'keyword-research', seoVolume: 789, statusVolume: 789, statusKd: 31, statusSource: 'keyword-research' },
       { name: 'billing-switch-cancel-readback', switchStatus: 200, switchPlanId: 'growth_annual', switchedReadbackStatus: 200, switchedReadbackPlanId: 'growth_annual', cancelStatus: 200, hasEndsAt: true, cancelledReadbackStatus: 200, cancelAtPeriodEnd: true, cancellationReason: 'browser budget check', cancelledStatus: 'active_until_period_end', stillActiveUntilEnd: true },
     ]);

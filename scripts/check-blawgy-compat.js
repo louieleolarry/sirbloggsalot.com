@@ -438,9 +438,29 @@ async function main() {
     const gscData = await request(base, "GET", "/gsc/data", undefined, { allowError: true });
     assert.strictEqual(gscData.status, 500);
     assert.strictEqual(typeof gscData.payload.error, "string");
-    assert.ok((await request(base, "GET", "/site-settings")).settings);
-    assert.ok(Array.isArray((await request(base, "GET", "/gsc/sites/local")).sites));
-    assert.strictEqual((await request(base, "POST", "/gsc/connect", { site })).success, true);
+    const disconnectedGscSettings = await request(base, "GET", `/site-settings?site=${site}`);
+    assert.strictEqual(disconnectedGscSettings.settings.gsc, null);
+    const gscSites = await request(base, "GET", "/gsc/sites/local");
+    assert.ok(Array.isArray(gscSites.sites));
+    assert.strictEqual((await request(base, "POST", "/gsc/connect", {
+      token: "local",
+      selectedGscSite: `sc-domain:${site}`,
+      currentBlawgySite: site,
+    })).success, true);
+    const connectedGscSettings = await request(base, "GET", `/site-settings?site=${site}`);
+    assert.strictEqual(connectedGscSettings.settings.gsc.connected_site, `sc-domain:${site}`);
+    assert.ok(connectedGscSettings.settings.gsc.access_token);
+    const connectedTraffic = await request(base, "GET", `/gsc/data?site=${site}&filters[dimensions][]=date`);
+    assert.ok(connectedTraffic.rows.some((row) => Array.isArray(row.keys) && row.keys[0] && row.clicks > 0 && row.impressions > 0));
+    const connectedPages = await request(base, "GET", `/gsc/data?site=${site}&filters[dimensions][]=page`);
+    assert.ok(connectedPages.rows.some((row) => String(row.keys?.[0] || "").includes(site)));
+    const connectedQueries = await request(base, "GET", `/gsc/data?site=${site}&filters[dimensions][]=query`);
+    assert.ok(connectedQueries.rows.some((row) => String(row.keys?.[0] || "").includes("local")));
+    assert.strictEqual((await request(base, "POST", "/gsc/disconnect", { site })).success, true);
+    const afterGscDisconnectSettings = await request(base, "GET", `/site-settings?site=${site}`);
+    assert.strictEqual(afterGscDisconnectSettings.settings.gsc, null);
+    const afterGscDisconnectData = await request(base, "GET", `/gsc/data?site=${site}`, undefined, { allowError: true });
+    assert.strictEqual(afterGscDisconnectData.status, 500);
 
     assert.ok((await request(base, "GET", "/hormozi/api/generate?domain=example.com", undefined, { auth: false })).data);
     assert.ok((await request(base, "GET", "/hormozi/api/offers/example-com", undefined, { auth: false })).data);
