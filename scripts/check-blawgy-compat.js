@@ -250,6 +250,20 @@ async function main() {
     assert.ok(Array.isArray((await request(base, "GET", "/framer/collections")).collections));
     assert.ok(Array.isArray((await request(base, "GET", "/webflow/fields")).fields));
 
+    const disposableSite = "delete-me.example";
+    assert.strictEqual((await request(base, "POST", "/connect-site", { site: disposableSite })).success, true);
+    assert.ok((await request(base, "GET", "/me")).sites.includes(disposableSite));
+    const deletedSite = await request(base, "DELETE", `/sites/${encodeURIComponent(disposableSite)}`);
+    assert.strictEqual(deletedSite.success, true);
+    assert.strictEqual(deletedSite.archived, true);
+    const afterDeleteMe = await request(base, "GET", "/me");
+    assert.ok(!afterDeleteMe.sites.includes(disposableSite));
+    assert.ok(afterDeleteMe.sites.includes(site));
+    const deletedSubscription = await request(base, "GET", `/subscription-details?site=${encodeURIComponent(disposableSite)}`);
+    assert.strictEqual(deletedSubscription.subscription.isActive, false);
+    assert.strictEqual(deletedSubscription.subscription.cancelAtPeriodEnd, true);
+    assert.ok(deletedSubscription.subscription.cancelledAt);
+
     assert.ok(Array.isArray((await request(base, "POST", "/generate-article-titles", { prompt: "local SEO" })).titles));
     assert.ok((await request(base, "POST", "/generate-article-outline", { title: "Local SEO" })).outline);
     assert.ok((await request(base, "POST", "/generate-full-article", { title: "Local SEO" })).article);
