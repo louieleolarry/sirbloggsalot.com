@@ -487,6 +487,26 @@ async function runInteractions(cdp, baseUrl) {
     const text = document.body.innerText || '';
     return { name: 'sitemap-fetch-result', hasFetchedLink: text.includes('https://sirbloggsalot.com/') };
   })()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => node.textContent.trim() === 'Save Changes');
+    button?.click();
+    return { name: 'sitemap-save-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const settingsRes = await fetch('/get-site-settings?site=sirbloggsalot.com', { headers });
+    const settings = await settingsRes.json();
+    const links = settings.settings?.internalLinks || [];
+    return {
+      name: 'sitemap-save-readback',
+      settingsStatus: settingsRes.status,
+      linkCount: links.length,
+      hasHomeLink: links.some((link) => link.url === 'https://sirbloggsalot.com/'),
+      hasObjectObjectLink: links.some((link) => String(link.url || '').includes('[object'))
+    };
+  })()`));
 
   await cdp.send("Page.navigate", { url: `${baseUrl}/settings/products` }, page.sessionId);
   await wait(1800);
@@ -563,6 +583,67 @@ async function runInteractions(cdp, baseUrl) {
   })()`));
   await wait(1000);
   settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'invite-generate-result', hasInviteLink: (document.body.innerText || '').includes('Invitation Link') }))()`));
+
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/webhooks` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').includes('Add Webhook'));
+    button?.click();
+    return { name: 'webhook-add-open', clicked: Boolean(button) };
+  })()`));
+  await wait(500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const setByLabel = (labelText, value) => {
+      const label = Array.from(document.querySelectorAll('label')).find((node) => (node.textContent || '').includes(labelText));
+      const input = label?.parentElement?.querySelector('input');
+      if (!input) return false;
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(input, value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    const filled = [
+      setByLabel('Webhook Name', 'Codex Webhook'),
+      setByLabel('Webhook URL', 'https://example.com/blawgy-webhook')
+    ];
+    return { name: 'webhook-form-fill', filled: filled.every(Boolean) };
+  })()`));
+  await wait(300);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).filter((node) => (node.textContent || '').trim() === 'Create Webhook').at(-1);
+    button?.click();
+    return { name: 'webhook-create-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const text = document.body.innerText || '';
+    const testButton = document.querySelector('button[title="Test webhook"]');
+    testButton?.click();
+    return { name: 'webhook-create-result', hasWebhook: text.includes('Codex Webhook'), clickedTest: Boolean(testButton) };
+  })()`));
+  await wait(500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').includes('Send Test'));
+    button?.click();
+    return { name: 'webhook-test-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const webhooksRes = await fetch('/api/webhooks', { headers });
+    const webhooks = await webhooksRes.json();
+    const hook = (webhooks.webhooks || []).find((row) => row.name === 'Codex Webhook');
+    const text = document.body.innerText || '';
+    return {
+      name: 'webhook-test-readback',
+      webhooksStatus: webhooksRes.status,
+      modalSuccess: text.includes('Success!'),
+      lastTestSuccess: hook?.lastTest?.success === true,
+      lastTestStatus: hook?.lastTestStatus || null
+    };
+  })()`));
 
   await cdp.send("Page.navigate", { url: `${baseUrl}/settings/business-locations` }, page.sessionId);
   await wait(1800);
@@ -954,6 +1035,8 @@ async function main() {
       { name: 'internal-links-toggle', fetchButtonVisible: true },
       { name: 'sitemap-fetch', clicked: true },
       { name: 'sitemap-fetch-result', hasFetchedLink: true },
+      { name: 'sitemap-save-click', clicked: true, disabled: false },
+      { name: 'sitemap-save-readback', settingsStatus: 200, linkCount: 2, hasHomeLink: true, hasObjectObjectLink: false },
       { name: 'product-modal-open-click', clicked: true },
       { name: 'product-modal-opened', hasNameField: true },
       { name: 'product-create', hasInput: true },
@@ -965,6 +1048,12 @@ async function main() {
       { name: 'cta-toggle-result', hasEditCta: true },
       { name: 'invite-generate', hasInput: true, clicked: true },
       { name: 'invite-generate-result', hasInviteLink: true },
+      { name: 'webhook-add-open', clicked: true },
+      { name: 'webhook-form-fill', filled: true },
+      { name: 'webhook-create-click', clicked: true, disabled: false },
+      { name: 'webhook-create-result', hasWebhook: true, clickedTest: true },
+      { name: 'webhook-test-click', clicked: true, disabled: false },
+      { name: 'webhook-test-readback', webhooksStatus: 200, modalSuccess: true, lastTestSuccess: true, lastTestStatus: 200 },
       { name: 'business-location-add-open', clicked: true },
       { name: 'business-location-form-fill', filled: true },
       { name: 'business-location-create-click', clicked: true },
