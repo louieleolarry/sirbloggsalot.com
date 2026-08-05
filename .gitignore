@@ -1,0 +1,7 @@
+node_modules/
+local-secrets*
+data/account-store.json
+data/auth-store.json
+data/*.tmp
+.DS_Store
+._*

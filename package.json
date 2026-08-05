@@ -1,0 +1,10 @@
+{
+  "name": "sirbloggsalot.com",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "check": "node --check server.js && node --check app.js && node scripts/check-routes.js && node scripts/check-auth-helpers.js"
+  }
+}
