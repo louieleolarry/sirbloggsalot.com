@@ -410,6 +410,22 @@ async function runInteractions(cdp, baseUrl) {
 
   await cdp.send("Page.navigate", { url: `${baseUrl}/dashboard` }, page.sessionId);
   await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Start welcome tour');
+    button?.click();
+    return { name: 'welcome-tour-dashboard-start', clicked: Boolean(button) };
+  })()`));
+  await wait(800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const bodyText = document.body.innerText || '';
+    return {
+      name: 'welcome-tour-dashboard-start-result',
+      hasWelcomeTour: bodyText.includes('Welcome to Blawgy!'),
+      hasNext: Boolean(Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Next'))
+    };
+  })()`));
+  await evaluate(cdp, page.sessionId, `document.querySelector('[aria-label="Skip tour"]')?.click()`);
+  await wait(300);
   await evaluate(cdp, page.sessionId, `document.querySelector('[data-testid="strategy-button"]')?.click()`);
   await wait(500);
   await evaluate(cdp, page.sessionId, `document.querySelector('[data-testid="plan-strategy-panel"] button')?.click()`);
@@ -1326,6 +1342,8 @@ async function main() {
     assert.ok(interactions.updateResponses.some((row) => row.status === 200));
     const articleBuilderReadback = interactions.settingsActions.find((row) => row.name === 'article-builder-save-readback');
     assert.deepStrictEqual(interactions.settingsActions, [
+      { name: 'welcome-tour-dashboard-start', clicked: true },
+      { name: 'welcome-tour-dashboard-start-result', hasWelcomeTour: true, hasNext: true },
       { name: 'site-settings-save', saved: true, clickButtonExists: true, setValueExists: true },
       { name: 'competitor-suggestions', clicked: true },
       { name: 'competitor-suggestions-result', hasSuggestedDomain: true, hasUndefinedText: false },

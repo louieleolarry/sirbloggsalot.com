@@ -36,6 +36,9 @@ const sourceBundle = path.join(sourceDir, "main.715d1cb0.js");
 const localBundle = path.join(staticJsDir, "main.715d1cb0.local.js");
 let bundle = fs.readFileSync(sourceBundle, "utf8");
 
+const dashboardStrategyButton = `(0,Qt.jsx)(mS,{content:"Configure your content strategy",children:(0,Qt.jsxs)("button",{onClick:()=>Be(!0),className:"flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors","data-testid":"strategy-button",children:[(0,Qt.jsx)(oh,{size:15}),(0,Qt.jsx)("span",{className:"hidden sm:inline",children:"Strategy"})]})})`;
+const dashboardWelcomeTourButton = `(0,Qt.jsx)(mS,{content:"Open the welcome walkthrough",children:(0,Qt.jsx)("button",{onClick:()=>{const e=Array.from(document.querySelectorAll("button")).find((e=>(e.title||"").includes("Guided walkthroughs")));e&&e.click(),setTimeout((()=>{const e=Array.from(document.querySelectorAll("button")).find((e=>(e.textContent||"").includes("Getting Started")));e&&e.click()}),60)},"data-testid":"welcome-tour-start",className:"flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors",children:"Start welcome tour"})})`;
+
 const replacements = [
   [
     'baseURL:"https://app.blawgy.com"',
@@ -79,6 +82,10 @@ const replacements = [
   [
     "https://app.blawgy.com/blog-posts",
     "/blog-posts",
+  ],
+  [
+    dashboardStrategyButton,
+    `${dashboardWelcomeTourButton},${dashboardStrategyButton}`,
   ],
 ];
 

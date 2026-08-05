@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   LogOutIcon, Trash2Icon, Download, Wand2Icon, LoaderIcon,
-  CalendarIcon, LayoutGrid, List, MoreHorizontal, PauseIcon, PlayIcon, SlidersHorizontal, RefreshCw
+  CalendarIcon, LayoutGrid, List, MoreHorizontal, PauseIcon, PlayCircle, PlayIcon, SlidersHorizontal, RefreshCw
 } from 'lucide-react';
 import apiClient from '../../utils/apiClient';
 import { cachedFetch, invalidate as invalidateCache } from '../../utils/apiCache';
@@ -12,6 +12,7 @@ import ImpersonationBanner from '../../components/ImpersonationBanner';
 import NavbarWrapper from '../../components/Navbar';
 import Tooltip from '../../components/Tooltip';
 import { useNavigate } from 'react-router-dom';
+import { TOUR_TYPES, useTour } from '../../contexts/TourContext';
 
 import SkeletonLoader from './SkeletonLoader';
 import ArticlesTable, { resolveTitle } from './ArticlesTable';
@@ -144,6 +145,7 @@ const Dashboard = ({ currentSite: changedSite, logout, email, updateCurrentSite 
     setShowBulkGenerateModal, setShowSubscriptionModal, setOnCloseBulkGenerate, onCloseBulkGenerate
   } = useModals();
   const navigate = useNavigate();
+  const { startTour } = useTour();
 
   // Small helper so all plan actions surface a consistent transient toast.
   // Accepts either a plain string (neutral slate, 3s) or
@@ -1371,6 +1373,16 @@ const Dashboard = ({ currentSite: changedSite, logout, email, updateCurrentSite 
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <Tooltip content="Open the welcome walkthrough">
+                      <button
+                        onClick={() => startTour(TOUR_TYPES.MAIN)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+                        data-testid="welcome-tour-start"
+                      >
+                        <PlayCircle size={15} />
+                        <span className="hidden sm:inline">Start welcome tour</span>
+                      </button>
+                    </Tooltip>
                     {/* Strategy: configure posting pace, horizon, topics */}
                     <Tooltip content="Configure your content strategy">
                       <button
