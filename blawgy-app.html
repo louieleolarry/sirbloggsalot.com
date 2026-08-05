@@ -34,6 +34,14 @@
         picture: "",
         role: "admin"
       };
+      var firstRunUser = {
+        id: "local-blawgy-signup",
+        email: "new-owner@sirbloggsalot.com",
+        name: "Sir Bloggsalot New Owner",
+        picture: "",
+        role: "client",
+        onboardingRequired: true
+      };
 
       window.__BLAWGY_API_BASE__ = window.location.origin;
       window.fbq = window.fbq || function () {};
@@ -67,7 +75,8 @@
           email: email,
           name: name,
           picture: picture,
-          role: role
+          role: role,
+          onboardingRequired: Boolean(user.onboardingRequired)
         };
         var bearer = "Bearer local." + encodeBearerPayload(bearerPayload) + ".sig";
         var token = bearer.replace(/^Bearer\s+/i, "");
@@ -84,6 +93,7 @@
           photoURL: picture,
           role: role,
           isAdmin: role === "admin",
+          onboardingRequired: Boolean(user.onboardingRequired),
           sites: [{ site: site, email: email }],
           blogType: "wordpress",
           subscription: subscription,
@@ -139,7 +149,11 @@
         return bearer;
       }
 
-      var localBearer = installLocalSession(fallbackUser);
+      function userForCurrentRoute() {
+        return window.location.pathname === "/signup" ? firstRunUser : fallbackUser;
+      }
+
+      var localBearer = installLocalSession(userForCurrentRoute());
 
       if (window.fetch) {
         var originalFetch = window.fetch;
@@ -193,7 +207,7 @@
           }
         })
         .catch(function () {
-          localBearer = installLocalSession(fallbackUser);
+          localBearer = installLocalSession(userForCurrentRoute());
         })
         .finally(loadBlawgyBundle);
     })();

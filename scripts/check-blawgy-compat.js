@@ -11,12 +11,13 @@ runtime.SIR_BLOGGS_BLAWGY_STORE_PATH = path.join(root, "data", "blawgy-compat-ch
 
 const { createServer } = require("../server");
 
-function bearer(role = "client") {
+function bearer(role = "client", claims = {}) {
   const payload = Buffer.from(JSON.stringify({
     sub: "compat-check",
     email: "owner@example.com",
     name: "Owner",
     role,
+    ...claims,
   })).toString("base64url");
   return `Bearer local.${payload}.sig`;
 }
@@ -25,7 +26,7 @@ async function request(base, method, route, body, options = {}) {
   const response = await fetch(`${base}${route}`, {
     method,
     headers: {
-      ...(options.auth === false ? {} : { authorization: bearer(options.role) }),
+      ...(options.auth === false ? {} : { authorization: bearer(options.role, options.claims) }),
       "content-type": "application/json",
     },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -70,12 +71,40 @@ async function main() {
       assert.ok(html.includes("/static/js/main.715d1cb0.local.js"));
       assert.ok(html.includes("window.__BLAWGY_API_BASE__"));
     }
+    {
+      const response = await fetch(`${base}/signup`);
+      assert.strictEqual(response.status, 200);
+      const html = await response.text();
+      assert.ok(html.includes("/static/js/main.715d1cb0.local.js"));
+    }
 
     assert.strictEqual((await request(base, "GET", "/api/branding")).branding.name, "Blawgy");
 
     const user = await request(base, "GET", "/get-user-details?email=owner@example.com");
     assert.strictEqual(user.email, "owner@example.com");
     assert.ok(Array.isArray(user.sites));
+
+    const firstRunClaims = {
+      sub: "first-run-compat",
+      email: "first-run@example.com",
+      name: "First Run",
+      onboardingRequired: true,
+    };
+    const firstRunMe = await request(base, "GET", "/me", undefined, { claims: firstRunClaims });
+    assert.strictEqual(firstRunMe.onboardingComplete, false);
+    assert.deepStrictEqual(firstRunMe.sites, []);
+    const firstRunDetails = await request(base, "GET", "/get-user-details?email=first-run@example.com", undefined, { claims: firstRunClaims });
+    assert.strictEqual(firstRunDetails.onboardingComplete, false);
+    assert.deepStrictEqual(firstRunDetails.sites, []);
+    assert.strictEqual((await request(base, "POST", "/onboarding/complete", {
+      site: "first-run-example.com",
+      productDescription: "First-run onboarding proof",
+      targetAudience: ["Local buyers"],
+      tone: "direct",
+    }, { claims: firstRunClaims })).success, true);
+    const completedFirstRun = await request(base, "GET", "/me", undefined, { claims: firstRunClaims });
+    assert.strictEqual(completedFirstRun.onboardingComplete, true);
+    assert.deepStrictEqual(completedFirstRun.sites, ["first-run-example.com"]);
 
     const siteSettings = await request(base, "GET", `/get-site-settings?site=${site}&email=owner@example.com`);
     assert.strictEqual(siteSettings.success, true);

@@ -565,6 +565,52 @@ async function runInteractions(cdp, baseUrl) {
   };
 }
 
+async function runOnboardingCheck(cdp, baseUrl) {
+  const page = await createPage(cdp);
+  const localStatuses = [];
+  const pageErrors = [];
+
+  cdp.on("Network.responseReceived", (message) => {
+    if (message.sessionId !== page.sessionId) return;
+    const response = message.params.response;
+    if (response.url.startsWith(baseUrl) && !response.url.includes("/static/")) {
+      localStatuses.push({ url: response.url, status: response.status });
+    }
+  });
+  cdp.on("Runtime.exceptionThrown", (message) => {
+    if (message.sessionId !== page.sessionId) return;
+    pageErrors.push(message.params.exceptionDetails?.text || "Runtime exception");
+  });
+  cdp.on("Log.entryAdded", (message) => {
+    if (message.sessionId !== page.sessionId) return;
+    if (message.params.entry?.level === "error") pageErrors.push(message.params.entry.text || "Log error");
+  });
+
+  await cdp.send("Emulation.setDeviceMetricsOverride", {
+    width: 1366,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  }, page.sessionId);
+
+  await cdp.send("Page.navigate", { url: `${baseUrl}/signup` }, page.sessionId);
+  await wait(2200);
+  const diagnostics = await evaluate(cdp, page.sessionId, `(() => ({
+    pathname: window.location.pathname,
+    textSample: (document.body.innerText || '').replace(/\\s+/g, ' ').slice(0, 300),
+    hasDomainInput: Boolean(document.querySelector('[data-testid="domain-input"]')),
+    hasDomainContinue: Boolean(document.querySelector('[data-testid="domain-input-submit"]'))
+  }))()`);
+
+  await cdp.send("Target.closeTarget", { targetId: page.targetId });
+
+  return {
+    ...diagnostics,
+    failedLocal: unexpectedLocalStatuses(localStatuses),
+    pageErrors: unexpectedPageErrors(pageErrors, localStatuses),
+  };
+}
+
 async function main() {
   await fsp.rm(tmpStorePath, { force: true });
   const server = createServer();
@@ -618,6 +664,14 @@ async function main() {
       { name: 'invite-generate', hasInput: true, clicked: true },
       { name: 'invite-generate-result', hasInviteLink: true },
     ]);
+
+    const onboarding = await runOnboardingCheck(cdp, baseUrl);
+    assert.deepStrictEqual(onboarding.failedLocal, []);
+    assert.deepStrictEqual(onboarding.pageErrors, []);
+    assert.strictEqual(onboarding.pathname, "/onboarding");
+    assert.strictEqual(onboarding.hasDomainInput, true);
+    assert.strictEqual(onboarding.hasDomainContinue, true);
+    assert.match(onboarding.textSample, /website|domain/i);
 
     console.log(`Blawgy browser smoke checks passed (${desktopRoutes.length} desktop routes, mobile dashboard, key interactions).`);
   } finally {
