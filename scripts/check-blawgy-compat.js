@@ -312,7 +312,26 @@ async function main() {
     const stream = await request(base, "POST", "/api/assistant/chat", { message: "status", site });
     assert.ok(String(stream).includes("\"type\":\"done\""));
 
-    assert.strictEqual((await request(base, "POST", "/api/save-keywords", { site, keywords: [{ kw: "gsc query" }] })).success, true);
+    assert.strictEqual((await request(base, "POST", "/api/save-keywords", {
+      site,
+      keywords: [
+        { kw: "gsc query", volume: 123, difficulty: 17, source: "gsc" },
+        { keyword: "research query", volume: 456, difficulty: 22, source: "keyword-research" },
+      ],
+    })).success, true);
+    const savedKeywordRows = (await request(base, "GET", `/api/seo/saved-keywords/${site}`)).keywords;
+    const gscKeyword = savedKeywordRows.find((row) => (row.keyword || row.kw || row) === "gsc query");
+    const researchKeyword = savedKeywordRows.find((row) => (row.keyword || row.kw || row) === "research query");
+    assert.strictEqual(gscKeyword.volume, 123);
+    assert.strictEqual(gscKeyword.difficulty, 17);
+    assert.strictEqual(gscKeyword.source, "gsc");
+    assert.strictEqual(researchKeyword.volume, 456);
+    assert.strictEqual(researchKeyword.difficulty, 22);
+    assert.strictEqual(researchKeyword.source, "keyword-research");
+    const seoKeywordRows = (await request(base, "GET", "/api/seo/keywords")).keywords;
+    assert.ok(seoKeywordRows.some((row) => (row.keyword || row.kw || row) === "research query" && row.volume === 456));
+    const keywordStatusRows = (await request(base, "GET", `/api/plan/${site}/keyword-status`)).statuses;
+    assert.ok(keywordStatusRows.some((row) => row.keyword === "gsc query" && row.volume === 123 && row.kd === 17));
     assert.ok(Array.isArray((await request(base, "POST", "/api/keyword-research/onboarding-preview", { website: site })).clusters));
     assert.ok(Array.isArray((await request(base, "GET", "/api/seo/keywords")).keywords));
 

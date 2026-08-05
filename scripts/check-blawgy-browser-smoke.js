@@ -912,6 +912,46 @@ async function runInteractions(cdp, baseUrl) {
       ...(token ? { authorization: 'Bearer ' + token } : {})
     };
     const readHeaders = token ? { authorization: 'Bearer ' + token } : {};
+    const saveRes = await fetch('/api/save-keywords', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        site: 'sirbloggsalot.com',
+        keywords: [{ keyword: 'browser metadata keyword', volume: 789, difficulty: 31, source: 'keyword-research' }]
+      })
+    });
+    const savedRes = await fetch('/api/seo/saved-keywords/sirbloggsalot.com', { headers: readHeaders });
+    const saved = await savedRes.json();
+    const seoRes = await fetch('/api/seo/keywords', { headers: readHeaders });
+    const seo = await seoRes.json();
+    const statusRes = await fetch('/api/plan/sirbloggsalot.com/keyword-status', { headers: readHeaders });
+    const status = await statusRes.json();
+    const savedRow = (saved.keywords || []).find((row) => (row.keyword || row.kw || row) === 'browser metadata keyword');
+    const seoRow = (seo.keywords || []).find((row) => (row.keyword || row.kw || row) === 'browser metadata keyword');
+    const statusRow = (status.statuses || []).find((row) => row.keyword === 'browser metadata keyword');
+    return {
+      name: 'keyword-metadata-readback',
+      saveStatus: saveRes.status,
+      savedStatus: savedRes.status,
+      seoStatus: seoRes.status,
+      keywordStatusStatus: statusRes.status,
+      savedVolume: savedRow?.volume || null,
+      savedDifficulty: savedRow?.difficulty || null,
+      savedSource: savedRow?.source || null,
+      seoVolume: seoRow?.volume || null,
+      statusVolume: statusRow?.volume || null,
+      statusKd: statusRow?.kd || null,
+      statusSource: statusRow?.source || null
+    };
+  })()`));
+
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const jsonHeaders = {
+      'content-type': 'application/json',
+      ...(token ? { authorization: 'Bearer ' + token } : {})
+    };
+    const readHeaders = token ? { authorization: 'Bearer ' + token } : {};
     const switchRes = await fetch('/switch-plan', {
       method: 'POST',
       headers: jsonHeaders,
@@ -1254,6 +1294,7 @@ async function main() {
       { name: 'cms-framer-test-result', settingsStatus: 200, hasSavedMessage: true, hasMismatchError: false, blogType: 'framer', collectionId: 'blog', hasTitleMap: true, hasBodyMap: true, hasHeroMap: true },
       { name: 'article-builder-save-readback', pathname: '/article-builder', draftStatus: 200, saveStatus: 200, publishStatus: 200, rowsStatus: 200, publishSuccess: true, matchCount: 1, hasSavedContent: true, savedId: articleBuilderReadback.savedId, readbackId: articleBuilderReadback.savedId },
       { name: 'content-plan-command-readback', addStatus: 200, generateStatus: 200, saveStatus: 200, dateStatus: 200, publishStatus: 200, planStatus: 200, title: 'Browser content command title', blogStatus: 'published', publishDate: '2026-09-05T12:00:00.000Z', hasContent: true, contentStatus: 200, contentPersisted: true, cancelStatus: 200, afterCancelStatus: 200, removedAfterCancel: true },
+      { name: 'keyword-metadata-readback', saveStatus: 200, savedStatus: 200, seoStatus: 200, keywordStatusStatus: 200, savedVolume: 789, savedDifficulty: 31, savedSource: 'keyword-research', seoVolume: 789, statusVolume: 789, statusKd: 31, statusSource: 'keyword-research' },
       { name: 'billing-switch-cancel-readback', switchStatus: 200, switchPlanId: 'growth_annual', switchedReadbackStatus: 200, switchedReadbackPlanId: 'growth_annual', cancelStatus: 200, hasEndsAt: true, cancelledReadbackStatus: 200, cancelAtPeriodEnd: true, cancellationReason: 'browser budget check', cancelledStatus: 'active_until_period_end', stillActiveUntilEnd: true },
     ]);
 
