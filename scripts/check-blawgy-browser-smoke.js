@@ -1296,6 +1296,67 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
 
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = {
+      'content-type': 'application/json',
+      ...(token ? { authorization: 'Bearer ' + token } : {})
+    };
+    const deleteSite = 'browser-delete.example';
+    const connectRes = await fetch('/connect-site', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ site: deleteSite })
+    });
+    const connect = await connectRes.json();
+    localStorage.setItem('currentSite', JSON.stringify({ site: deleteSite, email: 'owner@sirbloggsalot.com' }));
+    return { name: 'delete-site-seed', connectStatus: connectRes.status, success: connect.success === true };
+  })()`));
+
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/site-settings?delete-smoke=1` }, page.sessionId);
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="delete-site-button"]'))`, { timeout: 10000 });
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = document.querySelector('[data-testid="delete-site-button"]');
+    button?.click();
+    return { name: 'delete-site-open', clicked: Boolean(button) };
+  })()`));
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="delete-site-confirm"]'))`, { timeout: 5000 });
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({
+    name: 'delete-site-modal-visible',
+    hasModal: Boolean(document.querySelector('[data-testid="delete-site-modal"]')),
+    hasConfirm: Boolean(document.querySelector('[data-testid="delete-site-confirm"]'))
+  }))()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = document.querySelector('[data-testid="delete-site-confirm"]');
+    const disabled = Boolean(button?.disabled);
+    button?.click();
+    return { name: 'delete-site-confirm-click', clicked: Boolean(button), disabled };
+  })()`));
+  await wait(2500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const deleteSite = 'browser-delete.example';
+    const [meRes, subscriptionRes] = await Promise.all([
+      fetch('/me', { headers }),
+      fetch('/subscription-details?site=' + encodeURIComponent(deleteSite), { headers })
+    ]);
+    const me = await meRes.json();
+    const subscription = await subscriptionRes.json();
+    const sites = Array.isArray(me.sites) ? me.sites.map((site) => typeof site === 'object' ? site.site : site) : [];
+    return {
+      name: 'delete-site-readback',
+      pathname: window.location.pathname,
+      meStatus: meRes.status,
+      stillListed: sites.includes(deleteSite),
+      subscriptionStatus: subscriptionRes.status,
+      isActive: subscription.subscription?.isActive,
+      cancelAtPeriodEnd: subscription.subscription?.cancelAtPeriodEnd,
+      status: subscription.subscription?.status || null,
+      hasCancelledAt: Boolean(subscription.subscription?.cancelledAt)
+    };
+  })()`));
+
   await cdp.send("Target.closeTarget", { targetId: page.targetId });
 
   return {
@@ -1625,6 +1686,11 @@ async function main() {
       { name: 'gsc-disconnect-readback', settingsStatus: 200, gscIsNull: true, dataStatus: 500, hasConnectCopy: true },
       { name: 'keyword-metadata-readback', saveStatus: 200, savedStatus: 200, seoStatus: 200, keywordStatusStatus: 200, savedVolume: 789, savedDifficulty: 31, savedSource: 'keyword-research', seoVolume: 789, statusVolume: 789, statusKd: 31, statusSource: 'keyword-research' },
       { name: 'billing-switch-cancel-readback', switchStatus: 200, switchPlanId: 'growth_annual', switchedReadbackStatus: 200, switchedReadbackPlanId: 'growth_annual', cancelStatus: 200, hasEndsAt: true, cancelledReadbackStatus: 200, cancelAtPeriodEnd: true, cancellationReason: 'browser budget check', cancelledStatus: 'active_until_period_end', stillActiveUntilEnd: true },
+      { name: 'delete-site-seed', connectStatus: 200, success: true },
+      { name: 'delete-site-open', clicked: true },
+      { name: 'delete-site-modal-visible', hasModal: true, hasConfirm: true },
+      { name: 'delete-site-confirm-click', clicked: true, disabled: false },
+      { name: 'delete-site-readback', pathname: '/settings/site-settings', meStatus: 200, stillListed: false, subscriptionStatus: 200, isActive: false, cancelAtPeriodEnd: true, status: 'canceled', hasCancelledAt: true },
     ]);
 
     const onboarding = await runOnboardingCheck(cdp, baseUrl);
