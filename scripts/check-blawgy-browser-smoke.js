@@ -564,6 +564,73 @@ async function runInteractions(cdp, baseUrl) {
   await wait(1000);
   settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'invite-generate-result', hasInviteLink: (document.body.innerText || '').includes('Invitation Link') }))()`));
 
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/business-locations` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => /Add another location|Add a location/.test(node.textContent || ''));
+    button?.click();
+    return { name: 'business-location-add-open', clicked: Boolean(button) };
+  })()`));
+  await wait(500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const setByLabel = (labelText, value) => {
+      const label = Array.from(document.querySelectorAll('label')).find((node) => (node.textContent || '').includes(labelText));
+      const input = label?.parentElement?.querySelector('input, textarea');
+      if (!input) return false;
+      const proto = input instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+      const setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
+      setter.call(input, value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    const filled = [
+      setByLabel('Label', 'Codex Upland Office'),
+      setByLabel('Business name', 'Codex Plumbing'),
+      setByLabel('City', 'Upland'),
+      setByLabel('State', 'CA'),
+      setByLabel('Service area', 'Upland, Ontario, Claremont')
+    ];
+    return { name: 'business-location-form-fill', filled: filled.every(Boolean) };
+  })()`));
+  await wait(300);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Add location');
+    button?.click();
+    return { name: 'business-location-create-click', clicked: Boolean(button) };
+  })()`));
+  await wait(1200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const text = document.body.innerText || '';
+    return { name: 'business-location-create-result', hasCreatedLocation: text.includes('Codex Upland Office') && text.includes('Upland') };
+  })()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const cards = Array.from(document.querySelectorAll('div')).filter((node) => (node.innerText || '').includes('Codex Upland Office'));
+    const button = cards.flatMap((card) => Array.from(card.querySelectorAll('button'))).find((node) => (node.textContent || '').includes('Set primary'));
+    button?.click();
+    return { name: 'business-location-set-primary', clicked: Boolean(button) };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const [profilesRes, settingsRes] = await Promise.all([
+      fetch('/api/pages/business-profiles?site=sirbloggsalot.com', { headers }),
+      fetch('/get-site-settings?site=sirbloggsalot.com', { headers })
+    ]);
+    const profiles = await profilesRes.json();
+    const settings = await settingsRes.json();
+    const rows = profiles.profiles || [];
+    const primary = rows.find((row) => row.isPrimary);
+    return {
+      name: 'business-location-primary-readback',
+      profilesStatus: profilesRes.status,
+      settingsStatus: settingsRes.status,
+      primaryCity: primary?.city || null,
+      settingsBusinessProfileCity: settings.settings?.businessProfile?.city || null
+    };
+  })()`));
+
   await cdp.send("Target.closeTarget", { targetId: page.targetId });
 
   return {
@@ -843,6 +910,12 @@ async function main() {
       { name: 'cta-toggle-result', hasEditCta: true },
       { name: 'invite-generate', hasInput: true, clicked: true },
       { name: 'invite-generate-result', hasInviteLink: true },
+      { name: 'business-location-add-open', clicked: true },
+      { name: 'business-location-form-fill', filled: true },
+      { name: 'business-location-create-click', clicked: true },
+      { name: 'business-location-create-result', hasCreatedLocation: true },
+      { name: 'business-location-set-primary', clicked: true },
+      { name: 'business-location-primary-readback', profilesStatus: 200, settingsStatus: 200, primaryCity: 'Upland', settingsBusinessProfileCity: 'Upland' },
     ]);
 
     const onboarding = await runOnboardingCheck(cdp, baseUrl);
