@@ -295,6 +295,16 @@ async function main() {
     assert.strictEqual(aiMentionsHistory.payload.needsUpgrade, true);
     assert.strictEqual((await request(base, "POST", `/api/ai-mentions/${site}/refresh`)).success, true);
 
+    const imageProduct = await request(base, "POST", `/api/products/${site}`, {
+      name: "Compat Image Product",
+      imageUrl: "https://example.com/product.jpg",
+    });
+    assert.strictEqual(imageProduct.product.images[0].src, "https://example.com/product.jpg");
+    const updatedImageProduct = await request(base, "PUT", `/api/products/${site}/${imageProduct.product._id}`, {
+      imageUrl: "https://example.com/product-updated.jpg",
+    });
+    assert.strictEqual(updatedImageProduct.product.images[0].src, "https://example.com/product-updated.jpg");
+
     const archivalProduct = await request(base, "POST", `/api/products/${site}`, { name: "Compat Archive Product", description: "Should soft-delete." });
     assert.ok(archivalProduct.product._id);
     assert.strictEqual((await request(base, "DELETE", `/api/products/${site}/${archivalProduct.product._id}`)).success, true);

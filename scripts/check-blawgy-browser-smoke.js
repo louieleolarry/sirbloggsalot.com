@@ -543,12 +543,31 @@ async function runInteractions(cdp, baseUrl) {
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
     setter.call(input, 'Codex Button Test Product');
     input.dispatchEvent(new Event('input', { bubbles: true }));
+    const imageLabel = Array.from(document.querySelectorAll('label')).find((node) => (node.textContent || '').includes('Image URL'));
+    const imageInput = imageLabel?.parentElement?.querySelector('input');
+    if (imageInput) {
+      setter.call(imageInput, '${baseUrl}/assets/sirbloggsalot-og.png');
+      imageInput.dispatchEvent(new Event('input', { bubbles: true }));
+      imageInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     const buttons = Array.from(document.querySelectorAll('button')).filter((node) => node.textContent.trim() === 'Add Product');
     buttons.at(-1)?.click();
-    return { name: 'product-create', hasInput: true };
+    return { name: 'product-create', hasInput: true, hasImageInput: Boolean(imageInput) };
   })()`));
   await wait(1000);
-  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'product-create-result', hasCreatedProduct: (document.body.innerText || '').includes('Codex Button Test Product') }))()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const productsRes = await fetch('/api/products/sirbloggsalot.com', { headers });
+    const products = await productsRes.json();
+    const created = (products.products || []).find((product) => product.name === 'Codex Button Test Product');
+    return {
+      name: 'product-create-result',
+      hasCreatedProduct: (document.body.innerText || '').includes('Codex Button Test Product'),
+      productsStatus: productsRes.status,
+      imageSrc: created?.images?.[0]?.src || null
+    };
+  })()`));
   settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
     window.confirm = () => true;
     const button = Array.from(document.querySelectorAll('button[title="Archive product"]')).find((node) => {
@@ -1491,8 +1510,8 @@ async function main() {
       { name: 'sitemap-save-readback', settingsStatus: 200, linkCount: 2, hasHomeLink: true, hasObjectObjectLink: false },
       { name: 'product-modal-open-click', clicked: true },
       { name: 'product-modal-opened', hasNameField: true },
-      { name: 'product-create', hasInput: true },
-      { name: 'product-create-result', hasCreatedProduct: true },
+      { name: 'product-create', hasInput: true, hasImageInput: true },
+      { name: 'product-create-result', hasCreatedProduct: true, productsStatus: 200, imageSrc: `${baseUrl}/assets/sirbloggsalot-og.png` },
       { name: 'product-archive-click', clicked: true, disabled: false },
       { name: 'product-archive-readback', productsStatus: 200, archivedStatus: 'archived', archivedCount: 1, stillVisible: false },
       { name: 'dutchie-connect-open', clicked: true },
