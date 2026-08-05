@@ -947,6 +947,7 @@ async function runOnboardingCheck(cdp, baseUrl) {
 
   await evaluate(cdp, page.sessionId, `document.querySelector('[data-testid="open-content-plan"]')?.click()`);
   await waitForExpression(cdp, page.sessionId, `window.location.pathname === '/dashboard'`, { timeout: 10000 });
+  await wait(1500);
   const dashboardDiagnostics = await evaluate(cdp, page.sessionId, `(async () => {
     const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
     const tokenParts = String(token || '').split('.');
@@ -964,6 +965,7 @@ async function runOnboardingCheck(cdp, baseUrl) {
     const data = await planRes.json();
     const settings = await settingsRes.json();
     const text = JSON.stringify(data).toLowerCase();
+    const bodyText = document.body.innerText || '';
     return {
       pathname: window.location.pathname,
       planStatus: planRes.status,
@@ -972,6 +974,8 @@ async function runOnboardingCheck(cdp, baseUrl) {
       planIncludesUpland: text.includes('upland'),
       settingsStatus: settingsRes.status,
       settingsBusinessProfileCity: settings.settings?.businessProfile?.city || null,
+      hasWelcomeTour: bodyText.includes('Welcome to Blawgy!'),
+      hasWelcomeTourNext: Boolean(Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Next')),
       authClaims: {
         sub: claims.sub || null,
         email: claims.email || null,
@@ -1091,6 +1095,8 @@ async function main() {
       planIncludesUpland: true,
       settingsStatus: 200,
       settingsBusinessProfileCity: "Upland",
+      hasWelcomeTour: true,
+      hasWelcomeTourNext: true,
       authClaims: onboarding.dashboard.authClaims,
     });
     assert.ok(onboarding.dashboard.planEntries >= 3);
