@@ -97,14 +97,47 @@ async function main() {
     assert.strictEqual(firstRunDetails.onboardingComplete, false);
     assert.deepStrictEqual(firstRunDetails.sites, []);
     assert.strictEqual((await request(base, "POST", "/onboarding/complete", {
-      site: "first-run-example.com",
-      productDescription: "First-run onboarding proof",
-      targetAudience: ["Local buyers"],
+      site: "first-run-plumbing.com",
+      productDescription: "Emergency plumbing and drain repair for Upland homeowners",
+      competitors: ["uplanddrainpros.example", "foothillplumbing.example"],
+      targetAudience: ["Upland homeowners", "Property managers"],
       tone: "direct",
+      businessType: "local",
+      businessProfile: {
+        address: "123 Mountain Ave",
+        city: "Upland",
+        state: "CA",
+        postalCode: "91786",
+        serviceArea: ["Upland", "Claremont", "Ontario"],
+        serviceRadiusMiles: 25,
+      },
+      additionalBusinessProfiles: [
+        {
+          businessName: "First Run Plumbing Ontario",
+          address: "456 Euclid Ave",
+          city: "Ontario",
+          state: "CA",
+          postalCode: "91764",
+          serviceRadiusMiles: 20,
+        },
+      ],
     }, { claims: firstRunClaims })).success, true);
     const completedFirstRun = await request(base, "GET", "/me", undefined, { claims: firstRunClaims });
     assert.strictEqual(completedFirstRun.onboardingComplete, true);
-    assert.deepStrictEqual(completedFirstRun.sites, ["first-run-example.com"]);
+    assert.deepStrictEqual(completedFirstRun.sites, ["first-run-plumbing.com"]);
+    const onboardedSettings = await request(base, "GET", "/get-site-settings?site=first-run-plumbing.com", undefined, { claims: firstRunClaims });
+    assert.strictEqual(onboardedSettings.settings.businessDescription, "Emergency plumbing and drain repair for Upland homeowners");
+    assert.deepStrictEqual(onboardedSettings.settings.competitors, ["uplanddrainpros.example", "foothillplumbing.example"]);
+    assert.strictEqual(onboardedSettings.settings.businessProfile.city, "Upland");
+    const onboardedProfiles = await request(base, "GET", "/api/pages/business-profiles?site=first-run-plumbing.com", undefined, { claims: firstRunClaims });
+    assert.ok(onboardedProfiles.profiles.some((profile) => profile.city === "Upland" && profile.isPrimary === true));
+    assert.ok(onboardedProfiles.profiles.some((profile) => profile.city === "Ontario" && profile.businessName === "First Run Plumbing Ontario"));
+    const generatedPlan = await request(base, "POST", "/api/plan/first-run-plumbing.com/generate", { horizonWeeks: 6 }, { claims: firstRunClaims });
+    assert.strictEqual(generatedPlan.success, true);
+    const onboardedPlan = await request(base, "GET", "/api/plan/first-run-plumbing.com", undefined, { claims: firstRunClaims });
+    const planText = JSON.stringify(onboardedPlan.entries).toLowerCase();
+    assert.ok(planText.includes("emergency plumbing"));
+    assert.ok(planText.includes("upland"));
 
     const siteSettings = await request(base, "GET", `/get-site-settings?site=${site}&email=owner@example.com`);
     assert.strictEqual(siteSettings.success, true);
