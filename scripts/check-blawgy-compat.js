@@ -303,7 +303,21 @@ async function main() {
     assert.ok((await request(base, "GET", `/api/dutchie/${site}/status`)).dutchie);
     const dutchie = await request(base, "POST", `/api/dutchie/${site}/connect`, { apiKey: "local", label: "Compat" });
     assert.strictEqual(dutchie.success, true);
-    assert.strictEqual((await request(base, "POST", `/api/dutchie/${site}/sync`)).success, true);
+    assert.ok(dutchie.sync.added > 0);
+    assert.ok(dutchie.dutchie.locations.some((location) => location.id && location.label === "Compat" && location.itemCount > 0));
+    const dutchieProducts = await request(base, "GET", `/api/products/${site}`);
+    assert.ok(dutchieProducts.products.some((product) => product.source === "dutchie" && product.locationLabel === "Compat"));
+    assert.ok(dutchieProducts.syncSettings.lastSyncAt);
+    const dutchieSync = await request(base, "POST", `/api/dutchie/${site}/sync`);
+    assert.strictEqual(dutchieSync.success, true);
+    assert.ok(dutchieSync.updated > 0);
+    const dutchieStatus = await request(base, "GET", `/api/dutchie/${site}/status`);
+    assert.strictEqual(dutchieStatus.dutchie.enabled, true);
+    const dutchieLocation = dutchieStatus.dutchie.locations.find((location) => location.label === "Compat");
+    assert.ok(dutchieLocation.id);
+    assert.strictEqual((await request(base, "DELETE", `/api/dutchie/${site}/locations/${dutchieLocation.id}`)).success, true);
+    const afterDutchieDisconnect = await request(base, "GET", `/api/dutchie/${site}/status`);
+    assert.ok(!afterDutchieDisconnect.dutchie.locations.some((location) => location.id === dutchieLocation.id));
 
     assert.strictEqual((await request(base, "GET", `/api/updates/${site}`)).success, true);
     assert.strictEqual((await request(base, "POST", `/api/tour/progress`, { userId: "owner@example.com", tours: {} })).success, true);

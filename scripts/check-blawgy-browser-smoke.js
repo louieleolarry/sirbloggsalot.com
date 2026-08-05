@@ -533,6 +533,75 @@ async function runInteractions(cdp, baseUrl) {
   })()`));
   await wait(1000);
   settingsActions.push(await evaluate(cdp, page.sessionId, `(() => ({ name: 'product-create-result', hasCreatedProduct: (document.body.innerText || '').includes('Codex Button Test Product') }))()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Connect');
+    button?.click();
+    return { name: 'dutchie-connect-open', clicked: Boolean(button) };
+  })()`));
+  await wait(300);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const setByLabel = (labelText, value) => {
+      const label = Array.from(document.querySelectorAll('label')).find((node) => (node.textContent || '').includes(labelText));
+      const input = label?.parentElement?.querySelector('input');
+      if (!input) return false;
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(input, value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    const filled = [
+      setByLabel('Dutchie API key', 'browser-local-dutchie-key'),
+      setByLabel('Label', 'Browser Dutchie Store')
+    ];
+    return { name: 'dutchie-form-fill', filled: filled.every(Boolean) };
+  })()`));
+  await wait(300);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Verify and connect');
+    button?.click();
+    return { name: 'dutchie-connect-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const [statusRes, productsRes] = await Promise.all([
+      fetch('/api/dutchie/sirbloggsalot.com/status', { headers }),
+      fetch('/api/products/sirbloggsalot.com', { headers })
+    ]);
+    const status = await statusRes.json();
+    const products = await productsRes.json();
+    const dutchieProducts = (products.products || []).filter((product) => product.source === 'dutchie' && product.locationLabel === 'Browser Dutchie Store');
+    return {
+      name: 'dutchie-connect-readback',
+      statusStatus: statusRes.status,
+      productsStatus: productsRes.status,
+      enabled: status.dutchie?.enabled === true,
+      locationCount: (status.dutchie?.locations || []).filter((location) => location.label === 'Browser Dutchie Store').length,
+      itemCount: (status.dutchie?.locations || []).find((location) => location.label === 'Browser Dutchie Store')?.itemCount || 0,
+      importedCount: dutchieProducts.length,
+      hasLastSyncAt: Boolean(products.syncSettings?.lastSyncAt)
+    };
+  })()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Sync Now');
+    button?.click();
+    return { name: 'dutchie-sync-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const productsRes = await fetch('/api/products/sirbloggsalot.com', { headers });
+    const products = await productsRes.json();
+    return {
+      name: 'dutchie-sync-readback',
+      productsStatus: productsRes.status,
+      importedCount: (products.products || []).filter((product) => product.source === 'dutchie' && product.locationLabel === 'Browser Dutchie Store').length,
+      hasLastSyncAt: Boolean(products.syncSettings?.lastSyncAt)
+    };
+  })()`));
 
   await cdp.send("Page.navigate", { url: `${baseUrl}/settings/image-style` }, page.sessionId);
   await wait(1800);
@@ -1269,6 +1338,12 @@ async function main() {
       { name: 'product-modal-opened', hasNameField: true },
       { name: 'product-create', hasInput: true },
       { name: 'product-create-result', hasCreatedProduct: true },
+      { name: 'dutchie-connect-open', clicked: true },
+      { name: 'dutchie-form-fill', filled: true },
+      { name: 'dutchie-connect-click', clicked: true, disabled: false },
+      { name: 'dutchie-connect-readback', statusStatus: 200, productsStatus: 200, enabled: true, locationCount: 1, itemCount: 2, importedCount: 2, hasLastSyncAt: true },
+      { name: 'dutchie-sync-click', clicked: true, disabled: false },
+      { name: 'dutchie-sync-readback', productsStatus: 200, importedCount: 2, hasLastSyncAt: true },
       { name: 'image-test-opened', clicked: true },
       { name: 'image-generate', hasInput: true, clicked: true },
       { name: 'image-generate-result', previewCount: 1, previewSrc: '/assets/sirbloggsalot-og.png' },

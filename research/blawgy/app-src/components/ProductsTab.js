@@ -235,12 +235,13 @@ const ProductsTab = () => {
 
     // Filter products
     const filteredProducts = products.filter(product => {
+        const isSyncedProduct = product.source === 'shopify' || product.source === 'dutchie' || Boolean(product.shopifyId);
         // Archived products are soft-deleted - never show them
         if (product.status === 'archived') return false;
 
         // Apply filter
-        if (filter === 'synced' && !product.shopifyId) return false;
-        if (filter === 'manual' && product.shopifyId) return false;
+        if (filter === 'synced' && !isSyncedProduct) return false;
+        if (filter === 'manual' && isSyncedProduct) return false;
         if (filter === 'hidden' && product.status !== 'hidden') return false;
         if (filter !== 'hidden' && product.status === 'hidden') return false;
 
