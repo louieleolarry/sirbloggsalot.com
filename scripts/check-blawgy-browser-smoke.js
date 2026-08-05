@@ -826,6 +826,51 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
 
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const jsonHeaders = {
+      'content-type': 'application/json',
+      ...(token ? { authorization: 'Bearer ' + token } : {})
+    };
+    const readHeaders = token ? { authorization: 'Bearer ' + token } : {};
+    const switchRes = await fetch('/switch-plan', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({ site: 'sirbloggsalot.com', newPlanId: 'growth_annual' })
+    });
+    const switched = await switchRes.json();
+    const switchedReadbackRes = await fetch('/subscription-details?site=sirbloggsalot.com', { headers: readHeaders });
+    const switchedReadback = await switchedReadbackRes.json();
+    const cancelRes = await fetch('/cancel-subscription', {
+      method: 'POST',
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        site: 'sirbloggsalot.com',
+        reason: 'browser budget check',
+        missing: 'readback proof',
+        alternative: 'manual publishing',
+        acceptRetention: false
+      })
+    });
+    const cancelled = await cancelRes.json();
+    const cancelledReadbackRes = await fetch('/subscription-details?site=sirbloggsalot.com', { headers: readHeaders });
+    const cancelledReadback = await cancelledReadbackRes.json();
+    return {
+      name: 'billing-switch-cancel-readback',
+      switchStatus: switchRes.status,
+      switchPlanId: switched.newPlan?.planId || null,
+      switchedReadbackStatus: switchedReadbackRes.status,
+      switchedReadbackPlanId: switchedReadback.subscription?.planId || null,
+      cancelStatus: cancelRes.status,
+      hasEndsAt: Number.isInteger(cancelled.endsAt),
+      cancelledReadbackStatus: cancelledReadbackRes.status,
+      cancelAtPeriodEnd: cancelledReadback.subscription?.cancelAtPeriodEnd === true,
+      cancellationReason: cancelledReadback.subscription?.cancellationFeedback?.reason || null,
+      cancelledStatus: cancelledReadback.subscription?.status || null,
+      stillActiveUntilEnd: cancelledReadback.subscription?.isActive === true
+    };
+  })()`));
+
   await cdp.send("Target.closeTarget", { targetId: page.targetId });
 
   return {
@@ -1091,6 +1136,7 @@ async function main() {
     assert.deepStrictEqual(interactions.failedRequests, []);
     assert.deepStrictEqual(interactions.pageErrors, []);
     assert.ok(interactions.updateResponses.some((row) => row.status === 200));
+    const articleBuilderReadback = interactions.settingsActions.find((row) => row.name === 'article-builder-save-readback');
     assert.deepStrictEqual(interactions.settingsActions, [
       { name: 'site-settings-save', saved: true, clickButtonExists: true, setValueExists: true },
       { name: 'competitor-suggestions', clicked: true },
@@ -1127,7 +1173,8 @@ async function main() {
       { name: 'cms-framer-form-fill', filled: true },
       { name: 'cms-framer-test-click', clicked: true, disabled: false },
       { name: 'cms-framer-test-result', settingsStatus: 200, hasSavedMessage: true, hasMismatchError: false, blogType: 'framer', collectionId: 'blog', hasTitleMap: true, hasBodyMap: true, hasHeroMap: true },
-      { name: 'article-builder-save-readback', pathname: '/article-builder', draftStatus: 200, saveStatus: 200, publishStatus: 200, rowsStatus: 200, publishSuccess: true, matchCount: 1, hasSavedContent: true, savedId: interactions.settingsActions.at(-1).savedId, readbackId: interactions.settingsActions.at(-1).savedId },
+      { name: 'article-builder-save-readback', pathname: '/article-builder', draftStatus: 200, saveStatus: 200, publishStatus: 200, rowsStatus: 200, publishSuccess: true, matchCount: 1, hasSavedContent: true, savedId: articleBuilderReadback.savedId, readbackId: articleBuilderReadback.savedId },
+      { name: 'billing-switch-cancel-readback', switchStatus: 200, switchPlanId: 'growth_annual', switchedReadbackStatus: 200, switchedReadbackPlanId: 'growth_annual', cancelStatus: 200, hasEndsAt: true, cancelledReadbackStatus: 200, cancelAtPeriodEnd: true, cancellationReason: 'browser budget check', cancelledStatus: 'active_until_period_end', stillActiveUntilEnd: true },
     ]);
 
     const onboarding = await runOnboardingCheck(cdp, baseUrl);

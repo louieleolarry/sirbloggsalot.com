@@ -278,6 +278,38 @@ async function main() {
     assert.ok(Array.isArray((await request(base, "GET", "/get-plans")).data));
     assert.ok((await request(base, "GET", "/subscription-details")).subscription);
     assert.ok((await request(base, "POST", "/checkout-session", { site, planId: "growth_monthly" })).url);
+    const switchedBilling = await request(base, "POST", "/switch-plan", { site, newPlanId: "growth_annual" });
+    assert.strictEqual(switchedBilling.success, true);
+    assert.strictEqual(switchedBilling.newPlan.planId, "growth_annual");
+    assert.strictEqual(switchedBilling.subscription.planId, "growth_annual");
+    assert.strictEqual((await request(base, "GET", `/subscription-details?site=${site}`)).subscription.planId, "growth_annual");
+    const cancelledBilling = await request(base, "POST", "/cancel-subscription", {
+      site,
+      reason: "budget",
+      missing: "monthly proof",
+      alternative: "manual content",
+      acceptRetention: false,
+    });
+    assert.strictEqual(cancelledBilling.success, true);
+    assert.ok(Number.isInteger(cancelledBilling.endsAt));
+    assert.strictEqual(cancelledBilling.subscription.cancelAtPeriodEnd, true);
+    assert.strictEqual(cancelledBilling.subscription.isActive, true);
+    const cancelledBillingReadback = await request(base, "GET", `/subscription-details?site=${site}`);
+    assert.strictEqual(cancelledBillingReadback.subscription.cancelAtPeriodEnd, true);
+    assert.strictEqual(cancelledBillingReadback.subscription.cancellationFeedback.reason, "budget");
+    assert.strictEqual(cancelledBillingReadback.subscription.status, "active_until_period_end");
+    const retentionSite = "retention-billing.example";
+    assert.strictEqual((await request(base, "POST", "/connect-site", { site: retentionSite })).success, true);
+    const retainedBilling = await request(base, "POST", "/cancel-subscription", {
+      site: retentionSite,
+      reason: "price",
+      acceptRetention: true,
+    });
+    assert.strictEqual(retainedBilling.success, true);
+    assert.strictEqual(retainedBilling.subscription.planId, "retention_monthly");
+    assert.strictEqual(retainedBilling.subscription.isActive, true);
+    assert.strictEqual(retainedBilling.subscription.cancelAtPeriodEnd, false);
+    assert.strictEqual((await request(base, "GET", `/subscription-details?site=${retentionSite}`)).subscription.planId, "retention_monthly");
     assert.strictEqual((await request(base, "POST", "/generate-retention-message", { reason: "budget" })).success, true);
     assert.ok((await request(base, "GET", "/generate-description?site=sirbloggsalot.com")).description);
     assert.ok(Array.isArray((await request(base, "GET", `/fetch-sitemap?site=${site}`)).urls));
