@@ -767,6 +767,65 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
 
+  await cdp.send("Page.navigate", { url: `${baseUrl}/article-builder` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = {
+      'content-type': 'application/json',
+      ...(token ? { authorization: 'Bearer ' + token } : {})
+    };
+    const title = 'Browser Article Builder save readback';
+    const content = '<p>Browser-authenticated Article Builder content is persisted.</p>';
+    const draftRes = await fetch('/api/article-builder/drafts', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        site: 'sirbloggsalot.com',
+        defineData: { prompt: 'Browser Article Builder regression' },
+        titleData: { selectedTitle: title },
+        articleData: { article: { title, sections: [{ title: 'Proof', content }] } }
+      })
+    });
+    const draft = await draftRes.json();
+    const saveRes = await fetch('/save-article', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        site: 'sirbloggsalot.com',
+        title,
+        blogTitle: title,
+        content,
+        metaDescription: 'Browser Article Builder regression',
+        keywords: ['browser article builder'],
+        createdWith: 'article-builder'
+      })
+    });
+    const saved = await saveRes.json();
+    const publishRes = await fetch('/api/article-builder/drafts/' + draft.draft.id + '/publish', {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ site: 'sirbloggsalot.com', publishedArticleId: saved.blog.id })
+    });
+    const published = await publishRes.json();
+    const rowsRes = await fetch('/all-blog-posts?site=sirbloggsalot.com', { headers });
+    const rows = await rowsRes.json();
+    const matches = rows.filter((row) => row.title === title);
+    return {
+      name: 'article-builder-save-readback',
+      pathname: window.location.pathname,
+      draftStatus: draftRes.status,
+      saveStatus: saveRes.status,
+      publishStatus: publishRes.status,
+      rowsStatus: rowsRes.status,
+      publishSuccess: published.success === true,
+      matchCount: matches.length,
+      hasSavedContent: matches.some((row) => String(row.blogContent || '').includes('Browser-authenticated Article Builder content')),
+      savedId: saved.blog?.id || null,
+      readbackId: matches[0]?.id || null
+    };
+  })()`));
+
   await cdp.send("Target.closeTarget", { targetId: page.targetId });
 
   return {
@@ -1068,6 +1127,7 @@ async function main() {
       { name: 'cms-framer-form-fill', filled: true },
       { name: 'cms-framer-test-click', clicked: true, disabled: false },
       { name: 'cms-framer-test-result', settingsStatus: 200, hasSavedMessage: true, hasMismatchError: false, blogType: 'framer', collectionId: 'blog', hasTitleMap: true, hasBodyMap: true, hasHeroMap: true },
+      { name: 'article-builder-save-readback', pathname: '/article-builder', draftStatus: 200, saveStatus: 200, publishStatus: 200, rowsStatus: 200, publishSuccess: true, matchCount: 1, hasSavedContent: true, savedId: interactions.settingsActions.at(-1).savedId, readbackId: interactions.settingsActions.at(-1).savedId },
     ]);
 
     const onboarding = await runOnboardingCheck(cdp, baseUrl);

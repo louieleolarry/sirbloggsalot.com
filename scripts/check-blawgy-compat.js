@@ -201,6 +201,40 @@ async function main() {
     assert.strictEqual((await request(base, "PATCH", `/api/article-builder/drafts/${draft.draft.id}/publish`, { site })).success, true);
     assert.ok(Array.isArray((await request(base, "GET", `/api/article-builder/published-articles?site=${site}`)).blogs));
 
+    const builderTitle = "Article Builder UI save persists exactly once";
+    const builderContent = "<p>Article Builder UI content survives save and draft publish.</p>";
+    const builderDraft = await request(base, "POST", "/api/article-builder/drafts", {
+      site,
+      defineData: { prompt: "Article Builder UI regression" },
+      titleData: { selectedTitle: builderTitle },
+      articleData: {
+        article: {
+          title: builderTitle,
+          sections: [{ title: "Proof", content: builderContent }],
+        },
+      },
+    });
+    const savedBuilderArticle = await request(base, "POST", "/save-article", {
+      site,
+      title: builderTitle,
+      blogTitle: builderTitle,
+      content: builderContent,
+      metaDescription: "UI save regression",
+      keywords: ["article builder"],
+      createdWith: "article-builder",
+    });
+    assert.ok(savedBuilderArticle.blog.id);
+    assert.strictEqual((await request(base, "PATCH", `/api/article-builder/drafts/${builderDraft.draft.id}/publish`, {
+      site,
+      publishedArticleId: savedBuilderArticle.blog.id,
+    })).success, true);
+    const builderRows = (await request(base, "GET", `/all-blog-posts?site=${site}`)).filter((row) => row.title === builderTitle);
+    assert.strictEqual(builderRows.length, 1);
+    assert.ok(String(builderRows[0].blogContent).includes("Article Builder UI content survives"));
+    const builderPublishedRows = (await request(base, "GET", `/api/article-builder/published-articles?site=${site}`)).blogs.filter((row) => row.title === builderTitle);
+    assert.strictEqual(builderPublishedRows.length, 1);
+    assert.strictEqual(builderPublishedRows[0].id, savedBuilderArticle.blog.id);
+
     assert.strictEqual((await request(base, "GET", `/api/seo/status/${site}`)).hasPro, true);
     assert.ok((await request(base, "GET", `/api/seo/snapshot/${site}`)).snapshot);
     assert.strictEqual((await request(base, "POST", `/api/seo/scan/${site}`)).success, true);
