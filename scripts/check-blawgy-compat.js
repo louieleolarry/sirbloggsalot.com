@@ -324,6 +324,25 @@ async function main() {
     assert.ok(webhook.webhook.id);
     assert.ok(Array.isArray((await request(base, "GET", "/api/webhooks")).webhooks));
     assert.strictEqual((await request(base, "POST", `/api/webhooks/${webhook.webhook.id}/test`, { event: "blog.created" })).success, true);
+    const routedWebhookSite = "webhook-routing.example";
+    assert.strictEqual((await request(base, "POST", "/connect-site", { site: routedWebhookSite })).success, true);
+    const routedWebhook = await request(base, "POST", "/api/webhooks", {
+      site: routedWebhookSite,
+      name: "Routed Hook",
+      webhookUrl: "https://example.com/routed-hook",
+    });
+    assert.ok(routedWebhook.webhook.id);
+    assert.strictEqual((await request(base, "POST", `/api/webhooks/${routedWebhook.webhook.id}/test`, { event: "blog.created" })).success, true);
+    const routedHooksAfterTest = await request(base, "GET", `/api/webhooks?site=${routedWebhookSite}`);
+    const routedHookAfterTest = routedHooksAfterTest.webhooks.find((row) => row.id === routedWebhook.webhook.id);
+    assert.strictEqual(routedHookAfterTest.lastTestStatus, 200);
+    const oldSigningToken = routedHookAfterTest.signingToken;
+    const routedRegenerated = await request(base, "POST", `/api/webhooks/${routedWebhook.webhook.id}/regenerate-token`, {});
+    assert.strictEqual(routedRegenerated.success, true);
+    assert.notStrictEqual(routedRegenerated.webhook.signingToken, oldSigningToken);
+    assert.strictEqual((await request(base, "DELETE", `/api/webhooks/${routedWebhook.webhook.id}`)).success, true);
+    const routedHooksAfterDelete = await request(base, "GET", `/api/webhooks?site=${routedWebhookSite}`);
+    assert.ok(!routedHooksAfterDelete.webhooks.some((row) => row.id === routedWebhook.webhook.id));
 
     assert.ok((await request(base, "GET", `/api/dutchie/${site}/status`)).dutchie);
     const dutchie = await request(base, "POST", `/api/dutchie/${site}/connect`, { apiKey: "local", label: "Compat" });
