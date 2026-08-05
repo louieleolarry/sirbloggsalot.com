@@ -631,6 +631,61 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
 
+  await cdp.send("Page.navigate", { url: `${baseUrl}/settings/cms-connect` }, page.sessionId);
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const select = Array.from(document.querySelectorAll('select')).find((node) => Array.from(node.options || []).some((opt) => opt.value === 'framer'));
+    if (!select) return { name: 'cms-framer-select', selected: false };
+    const setter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set;
+    setter.call(select, 'framer');
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    return { name: 'cms-framer-select', selected: select.value === 'framer' };
+  })()`));
+  await wait(500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const setByLabel = (labelText, value) => {
+      const label = Array.from(document.querySelectorAll('label')).find((node) => (node.textContent || '').includes(labelText));
+      const input = label?.parentElement?.querySelector('input');
+      if (!input) return false;
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(input, value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    const filled = [
+      setByLabel('Framer project link', 'https://framer.com/projects/sirbloggsalot-AbC123'),
+      setByLabel('Framer API', 'local-framer-value')
+    ];
+    return { name: 'cms-framer-form-fill', filled: filled.every(Boolean) };
+  })()`));
+  await wait(300);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').includes('Test Connection'));
+    button?.click();
+    return { name: 'cms-framer-test-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1800);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const settingsRes = await fetch('/get-site-settings?site=sirbloggsalot.com', { headers });
+    const settings = await settingsRes.json();
+    const map = settings.settings?.framerFieldMap || {};
+    const text = document.body.innerText || '';
+    return {
+      name: 'cms-framer-test-result',
+      settingsStatus: settingsRes.status,
+      hasSavedMessage: /Saved\\.|Connected!/.test(text),
+      hasMismatchError: text.includes("couldn't match"),
+      blogType: settings.settings?.blogType || null,
+      collectionId: settings.settings?.framerCollectionId || null,
+      hasTitleMap: Boolean(map.title),
+      hasBodyMap: Boolean(map.body),
+      hasHeroMap: Boolean(map.heroImage)
+    };
+  })()`));
+
   await cdp.send("Target.closeTarget", { targetId: page.targetId });
 
   return {
@@ -916,6 +971,10 @@ async function main() {
       { name: 'business-location-create-result', hasCreatedLocation: true },
       { name: 'business-location-set-primary', clicked: true },
       { name: 'business-location-primary-readback', profilesStatus: 200, settingsStatus: 200, primaryCity: 'Upland', settingsBusinessProfileCity: 'Upland' },
+      { name: 'cms-framer-select', selected: true },
+      { name: 'cms-framer-form-fill', filled: true },
+      { name: 'cms-framer-test-click', clicked: true, disabled: false },
+      { name: 'cms-framer-test-result', settingsStatus: 200, hasSavedMessage: true, hasMismatchError: false, blogType: 'framer', collectionId: 'blog', hasTitleMap: true, hasBodyMap: true, hasHeroMap: true },
     ]);
 
     const onboarding = await runOnboardingCheck(cdp, baseUrl);
