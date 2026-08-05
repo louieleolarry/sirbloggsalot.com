@@ -304,6 +304,13 @@ async function main() {
       imageUrl: "https://example.com/product-updated.jpg",
     });
     assert.strictEqual(updatedImageProduct.product.images[0].src, "https://example.com/product-updated.jpg");
+    const beforeHideUpdatedAt = updatedImageProduct.product.updatedAt;
+    const hiddenImageProduct = await request(base, "POST", `/api/products/${site}/${imageProduct.product._id}/hide`);
+    assert.strictEqual(hiddenImageProduct.product.status, "hidden");
+    assert.notStrictEqual(hiddenImageProduct.product.updatedAt, beforeHideUpdatedAt);
+    const unhiddenImageProduct = await request(base, "POST", `/api/products/${site}/${imageProduct.product._id}/unhide`);
+    assert.strictEqual(unhiddenImageProduct.product.status, "active");
+    assert.notStrictEqual(unhiddenImageProduct.product.updatedAt, hiddenImageProduct.product.updatedAt);
 
     const archivalProduct = await request(base, "POST", `/api/products/${site}`, { name: "Compat Archive Product", description: "Should soft-delete." });
     assert.ok(archivalProduct.product._id);

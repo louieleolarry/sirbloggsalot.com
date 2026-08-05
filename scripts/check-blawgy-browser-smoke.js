@@ -569,6 +569,71 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
   settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button[title="Hide product"]')).find((node) => {
+      let parent = node.parentElement;
+      for (let index = 0; index < 8 && parent; index += 1) {
+        if ((parent.innerText || '').includes('Codex Button Test Product')) return true;
+        parent = parent.parentElement;
+      }
+      return false;
+    });
+    button?.click();
+    return { name: 'product-hide-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const productsRes = await fetch('/api/products/sirbloggsalot.com', { headers });
+    const products = await productsRes.json();
+    const hidden = (products.products || []).find((product) => product.name === 'Codex Button Test Product');
+    return {
+      name: 'product-hide-readback',
+      productsStatus: productsRes.status,
+      hiddenStatus: hidden?.status || null,
+      hiddenCount: products.counts?.hidden || 0,
+      hiddenUpdated: hidden?.updatedAt !== hidden?.createdAt,
+      stillVisible: (document.body.innerText || '').includes('Codex Button Test Product')
+    };
+  })()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'hidden');
+    button?.click();
+    return { name: 'product-hidden-filter-click', clicked: Boolean(button) };
+  })()`));
+  await wait(500);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button[title="Show product"]')).find((node) => {
+      let parent = node.parentElement;
+      for (let index = 0; index < 8 && parent; index += 1) {
+        if ((parent.innerText || '').includes('Codex Button Test Product')) return true;
+        parent = parent.parentElement;
+      }
+      return false;
+    });
+    button?.click();
+    return { name: 'product-show-click', clicked: Boolean(button), disabled: Boolean(button?.disabled) };
+  })()`));
+  await wait(1000);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const productsRes = await fetch('/api/products/sirbloggsalot.com', { headers });
+    const products = await productsRes.json();
+    const shown = (products.products || []).find((product) => product.name === 'Codex Button Test Product');
+    const allButton = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'all');
+    allButton?.click();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return {
+      name: 'product-show-readback',
+      productsStatus: productsRes.status,
+      shownStatus: shown?.status || null,
+      hiddenCount: products.counts?.hidden || 0,
+      hasActiveProduct: Boolean(shown && products.counts?.active >= 1),
+      visibleAfterAllFilter: (document.body.innerText || '').includes('Codex Button Test Product')
+    };
+  })()`));
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
     window.confirm = () => true;
     const button = Array.from(document.querySelectorAll('button[title="Archive product"]')).find((node) => {
       let parent = node.parentElement;
@@ -1512,6 +1577,11 @@ async function main() {
       { name: 'product-modal-opened', hasNameField: true },
       { name: 'product-create', hasInput: true, hasImageInput: true },
       { name: 'product-create-result', hasCreatedProduct: true, productsStatus: 200, imageSrc: `${baseUrl}/assets/sirbloggsalot-og.png` },
+      { name: 'product-hide-click', clicked: true, disabled: false },
+      { name: 'product-hide-readback', productsStatus: 200, hiddenStatus: 'hidden', hiddenCount: 1, hiddenUpdated: true, stillVisible: false },
+      { name: 'product-hidden-filter-click', clicked: true },
+      { name: 'product-show-click', clicked: true, disabled: false },
+      { name: 'product-show-readback', productsStatus: 200, shownStatus: 'active', hiddenCount: 0, hasActiveProduct: true, visibleAfterAllFilter: true },
       { name: 'product-archive-click', clicked: true, disabled: false },
       { name: 'product-archive-readback', productsStatus: 200, archivedStatus: 'archived', archivedCount: 1, stillVisible: false },
       { name: 'dutchie-connect-open', clicked: true },
