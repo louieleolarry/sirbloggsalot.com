@@ -390,6 +390,22 @@ async function main() {
     assert.strictEqual(retainedBilling.subscription.isActive, true);
     assert.strictEqual(retainedBilling.subscription.cancelAtPeriodEnd, false);
     assert.strictEqual((await request(base, "GET", `/subscription-details?site=${retentionSite}`)).subscription.planId, "retention_monthly");
+    const siteIdBillingSite = "siteid-billing.example";
+    assert.strictEqual((await request(base, "POST", "/connect-site", { site: siteIdBillingSite })).success, true);
+    const siteIdSwitch = await request(base, "POST", "/switch-plan", { siteId: siteIdBillingSite, newPlanId: "growth_annual" });
+    assert.strictEqual(siteIdSwitch.success, true);
+    assert.strictEqual((await request(base, "GET", `/subscription-details?site=${siteIdBillingSite}`)).subscription.planId, "growth_annual");
+    const siteIdCancel = await request(base, "POST", "/cancel-subscription", {
+      siteId: siteIdBillingSite,
+      reason: "site id routing",
+      missing: "button routed to current site",
+      alternative: "manual billing",
+      acceptRetention: false,
+    });
+    assert.strictEqual(siteIdCancel.success, true);
+    const siteIdCancelReadback = await request(base, "GET", `/subscription-details?site=${siteIdBillingSite}`);
+    assert.strictEqual(siteIdCancelReadback.subscription.cancelAtPeriodEnd, true);
+    assert.strictEqual(siteIdCancelReadback.subscription.cancellationFeedback.reason, "site id routing");
     assert.strictEqual((await request(base, "POST", "/generate-retention-message", { reason: "budget" })).success, true);
     assert.ok((await request(base, "GET", "/generate-description?site=sirbloggsalot.com")).description);
     assert.ok(Array.isArray((await request(base, "GET", `/fetch-sitemap?site=${site}`)).urls));

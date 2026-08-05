@@ -990,6 +990,38 @@ async function runInteractions(cdp, baseUrl) {
     };
   })()`));
 
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const button = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Billing');
+    button?.click();
+    return { name: 'billing-modal-open-click', clicked: Boolean(button) };
+  })()`));
+  await wait(1200);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(() => {
+    const text = document.body.innerText || '';
+    const switchButton = Array.from(document.querySelectorAll('button')).find((node) => (node.textContent || '').trim() === 'Switch Plan');
+    switchButton?.click();
+    return {
+      name: 'billing-modal-switch-click',
+      hasCurrentSubscription: text.includes('Current Subscription'),
+      clicked: Boolean(switchButton),
+      disabled: Boolean(switchButton?.disabled)
+    };
+  })()`));
+  await wait(1600);
+  settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const readbackRes = await fetch('/subscription-details?site=sirbloggsalot.com', { headers });
+    const readback = await readbackRes.json();
+    const text = document.body.innerText || '';
+    return {
+      name: 'billing-modal-switch-readback',
+      readbackStatus: readbackRes.status,
+      planId: readback.subscription?.planId || null,
+      hasSuccessBanner: text.includes('Switched to Growth')
+    };
+  })()`));
+
   settingsActions.push(await evaluate(cdp, page.sessionId, `(async () => {
     const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
     const jsonHeaders = {
@@ -1387,6 +1419,9 @@ async function main() {
       { name: 'cms-framer-test-result', settingsStatus: 200, hasSavedMessage: true, hasMismatchError: false, blogType: 'framer', collectionId: 'blog', hasTitleMap: true, hasBodyMap: true, hasHeroMap: true },
       { name: 'article-builder-save-readback', pathname: '/article-builder', draftStatus: 200, saveStatus: 200, publishStatus: 200, rowsStatus: 200, publishSuccess: true, matchCount: 1, hasSavedContent: true, savedId: articleBuilderReadback.savedId, readbackId: articleBuilderReadback.savedId },
       { name: 'content-plan-command-readback', addStatus: 200, generateStatus: 200, saveStatus: 200, dateStatus: 200, publishStatus: 200, planStatus: 200, title: 'Browser content command title', blogStatus: 'published', publishDate: '2026-09-05T12:00:00.000Z', hasContent: true, contentStatus: 200, contentPersisted: true, cancelStatus: 200, afterCancelStatus: 200, removedAfterCancel: true },
+      { name: 'billing-modal-open-click', clicked: true },
+      { name: 'billing-modal-switch-click', hasCurrentSubscription: true, clicked: true, disabled: false },
+      { name: 'billing-modal-switch-readback', readbackStatus: 200, planId: 'growth_annual', hasSuccessBanner: true },
       { name: 'keyword-metadata-readback', saveStatus: 200, savedStatus: 200, seoStatus: 200, keywordStatusStatus: 200, savedVolume: 789, savedDifficulty: 31, savedSource: 'keyword-research', seoVolume: 789, statusVolume: 789, statusKd: 31, statusSource: 'keyword-research' },
       { name: 'billing-switch-cancel-readback', switchStatus: 200, switchPlanId: 'growth_annual', switchedReadbackStatus: 200, switchedReadbackPlanId: 'growth_annual', cancelStatus: 200, hasEndsAt: true, cancelledReadbackStatus: 200, cancelAtPeriodEnd: true, cancellationReason: 'browser budget check', cancelledStatus: 'active_until_period_end', stillActiveUntilEnd: true },
     ]);
