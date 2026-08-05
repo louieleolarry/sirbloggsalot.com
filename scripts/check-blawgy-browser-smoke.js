@@ -269,6 +269,17 @@ async function evaluate(cdp, sessionId, expression) {
   return result.result?.value;
 }
 
+async function waitForExpression(cdp, sessionId, expression, { timeout = 10000, interval = 250 } = {}) {
+  const started = Date.now();
+  let lastValue;
+  while (Date.now() - started < timeout) {
+    lastValue = await evaluate(cdp, sessionId, expression);
+    if (lastValue) return lastValue;
+    await wait(interval);
+  }
+  throw new Error(`Timed out waiting for browser condition: ${expression}\nLast value: ${JSON.stringify(lastValue)}`);
+}
+
 async function navigateAndCollect(cdp, baseUrl, route, viewport) {
   const page = await createPage(cdp);
   const requests = [];
@@ -568,8 +579,37 @@ async function runInteractions(cdp, baseUrl) {
 async function runOnboardingCheck(cdp, baseUrl) {
   const page = await createPage(cdp);
   const localStatuses = [];
+  const onboardingWrites = [];
   const pageErrors = [];
 
+  cdp.on("Network.requestWillBeSent", (message) => {
+    if (message.sessionId !== page.sessionId) return;
+    const request = message.params.request || {};
+    if (!request.url?.startsWith(baseUrl) || !request.url.endsWith("/onboarding/complete")) return;
+    try {
+      const payload = JSON.parse(request.postData || "{}");
+      const authHeader = request.headers?.Authorization || request.headers?.authorization || "";
+      const tokenParts = String(authHeader).replace(/^Bearer\s+/i, "").split(".");
+      let claims = {};
+      if (tokenParts.length >= 2) {
+        try {
+          claims = JSON.parse(Buffer.from(tokenParts[1].replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8"));
+        } catch {
+          claims = { parseError: true };
+        }
+      }
+      onboardingWrites.push({
+        ...payload,
+        authClaims: {
+          sub: claims.sub || null,
+          email: claims.email || null,
+          onboardingRequired: Boolean(claims.onboardingRequired),
+        },
+      });
+    } catch {
+      onboardingWrites.push({ parseError: true });
+    }
+  });
   cdp.on("Network.responseReceived", (message) => {
     if (message.sessionId !== page.sessionId) return;
     const response = message.params.response;
@@ -594,18 +634,158 @@ async function runOnboardingCheck(cdp, baseUrl) {
   }, page.sessionId);
 
   await cdp.send("Page.navigate", { url: `${baseUrl}/signup` }, page.sessionId);
-  await wait(2200);
-  const diagnostics = await evaluate(cdp, page.sessionId, `(() => ({
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="domain-input"]'))`, { timeout: 8000 });
+  const routeDiagnostics = await evaluate(cdp, page.sessionId, `(() => ({
     pathname: window.location.pathname,
     textSample: (document.body.innerText || '').replace(/\\s+/g, ' ').slice(0, 300),
     hasDomainInput: Boolean(document.querySelector('[data-testid="domain-input"]')),
     hasDomainContinue: Boolean(document.querySelector('[data-testid="domain-input-submit"]'))
   }))()`);
 
+  await evaluate(cdp, page.sessionId, `(() => {
+    const set = (selector, value) => {
+      const node = document.querySelector(selector);
+      if (!node) return false;
+      const proto = node instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+      const setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
+      setter.call(node, value);
+      node.dispatchEvent(new Event('input', { bubbles: true }));
+      node.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    set('[data-testid="domain-input"]', 'first-run-plumbing.com');
+    document.querySelector('[data-testid="domain-input-submit"]')?.click();
+    return true;
+  })()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="stage-description"]'))`, { timeout: 12000 });
+  const descriptionDiagnostics = await evaluate(cdp, page.sessionId, `(() => {
+    const textarea = document.querySelector('[data-testid="description-textarea"]');
+    const value = textarea?.value || '';
+    document.querySelector('[data-testid="description-confirm"]')?.click();
+    return {
+      reachedDescription: Boolean(textarea),
+      descriptionIncludesPlumbing: /plumbing|drain|first-run/i.test(value),
+      descriptionSample: value.slice(0, 180)
+    };
+  })()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="stage-competitors"]'))`, { timeout: 10000 });
+  await evaluate(cdp, page.sessionId, `document.querySelector('[data-testid="competitors-continue"]')?.click()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="stage-audience"]'))`, { timeout: 10000 });
+  await evaluate(cdp, page.sessionId, `(() => {
+    const input = document.querySelector('[data-testid="bubble-custom-input"]');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, 'Upland homeowners');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('[aria-label="Add"]')?.click();
+    document.querySelector('[data-testid="audience-continue"]')?.click();
+    return true;
+  })()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="stage-mode"]'))`, { timeout: 10000 });
+  await evaluate(cdp, page.sessionId, `(() => {
+    document.querySelector('[data-testid="mode-option-local"]')?.click();
+    document.querySelector('[data-testid="mode-continue"]')?.click();
+    return true;
+  })()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="stage-local"]'))`, { timeout: 10000 });
+  await evaluate(cdp, page.sessionId, `(() => {
+    const setByPlaceholder = (needle, value) => {
+      const input = Array.from(document.querySelectorAll('input')).find((node) => (node.placeholder || '').includes(needle));
+      if (!input) return false;
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+      setter.call(input, value);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    setByPlaceholder('City', 'Upland');
+    setByPlaceholder('State / region', 'CA');
+    setByPlaceholder('Nearby towns', 'Ontario, Claremont');
+    return true;
+  })()`);
+  await wait(300);
+  const localDiagnostics = await evaluate(cdp, page.sessionId, `(() => {
+    const byPlaceholder = (needle) => Array.from(document.querySelectorAll('input')).find((node) => (node.placeholder || '').includes(needle))?.value || '';
+    const values = {
+      city: byPlaceholder('City'),
+      state: byPlaceholder('State / region'),
+      serviceArea: byPlaceholder('Nearby towns')
+    };
+    document.querySelector('[data-testid="local-continue"]')?.click();
+    return values;
+  })()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="stage-tone"]'))`, { timeout: 15000 });
+  await evaluate(cdp, page.sessionId, `(() => {
+    const input = document.querySelector('[data-testid="bubble-custom-input"]');
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    setter.call(input, 'Helpful and urgent');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('[data-testid="tone-continue"]')?.click();
+    return true;
+  })()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="stage-subscribe"]'))`, { timeout: 18000 });
+  await evaluate(cdp, page.sessionId, `document.querySelector('[data-testid="subscribe-cta"]')?.click()`);
+
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="success-plan-reveal"]'))`, { timeout: 10000 });
+  await waitForExpression(cdp, page.sessionId, `Boolean(document.querySelector('[data-testid="plan-ready"]'))`, { timeout: 12000 });
+  const successDiagnostics = await evaluate(cdp, page.sessionId, `(() => ({
+    pathname: window.location.pathname,
+    hasSuccessPlanReveal: Boolean(document.querySelector('[data-testid="success-plan-reveal"]')),
+    hasPlanReady: Boolean(document.querySelector('[data-testid="plan-ready"]')),
+    planPreviewRows: document.querySelectorAll('[data-testid="plan-preview-row"]').length,
+    readyText: (document.body.innerText || '').replace(/\\s+/g, ' ').slice(0, 500)
+  }))()`);
+
+  await evaluate(cdp, page.sessionId, `document.querySelector('[data-testid="open-content-plan"]')?.click()`);
+  await waitForExpression(cdp, page.sessionId, `window.location.pathname === '/dashboard'`, { timeout: 10000 });
+  const dashboardDiagnostics = await evaluate(cdp, page.sessionId, `(async () => {
+    const token = await window.__BLAWGY_LOCAL_AUTH__?.currentUser?.getIdToken?.();
+    const tokenParts = String(token || '').split('.');
+    let claims = {};
+    if (tokenParts.length >= 2) {
+      try {
+        claims = JSON.parse(atob(tokenParts[1].replace(/-/g, '+').replace(/_/g, '/')));
+      } catch {}
+    }
+    const headers = token ? { authorization: 'Bearer ' + token } : {};
+    const [planRes, settingsRes] = await Promise.all([
+      fetch('/api/plan/first-run-plumbing.com', { headers }),
+      fetch('/get-site-settings?site=first-run-plumbing.com', { headers })
+    ]);
+    const data = await planRes.json();
+    const settings = await settingsRes.json();
+    const text = JSON.stringify(data).toLowerCase();
+    return {
+      pathname: window.location.pathname,
+      planStatus: planRes.status,
+      planEntries: (data.entries || data.plan?.entries || []).length,
+      planIncludesPlumbing: text.includes('plumbing'),
+      planIncludesUpland: text.includes('upland'),
+      settingsStatus: settingsRes.status,
+      settingsBusinessProfileCity: settings.settings?.businessProfile?.city || null,
+      authClaims: {
+        sub: claims.sub || null,
+        email: claims.email || null,
+        onboardingRequired: Boolean(claims.onboardingRequired)
+      }
+    };
+  })()`);
+
   await cdp.send("Target.closeTarget", { targetId: page.targetId });
 
   return {
-    ...diagnostics,
+    ...routeDiagnostics,
+    description: descriptionDiagnostics,
+    local: localDiagnostics,
+    onboardingWrites,
+    success: successDiagnostics,
+    dashboard: dashboardDiagnostics,
     failedLocal: unexpectedLocalStatuses(localStatuses),
     pageErrors: unexpectedPageErrors(pageErrors, localStatuses),
   };
@@ -672,6 +852,27 @@ async function main() {
     assert.strictEqual(onboarding.hasDomainInput, true);
     assert.strictEqual(onboarding.hasDomainContinue, true);
     assert.match(onboarding.textSample, /website|domain/i);
+    assert.strictEqual(onboarding.description.reachedDescription, true);
+    assert.strictEqual(onboarding.description.descriptionIncludesPlumbing, true);
+    assert.deepStrictEqual(onboarding.local, { city: "Upland", state: "CA", serviceArea: "Ontario, Claremont" });
+    assert.strictEqual(onboarding.onboardingWrites.length, 1);
+    assert.strictEqual(onboarding.onboardingWrites[0].businessProfile?.city, "Upland");
+    assert.deepStrictEqual(onboarding.dashboard.authClaims, onboarding.onboardingWrites[0].authClaims);
+    assert.strictEqual(onboarding.success.pathname, "/success");
+    assert.strictEqual(onboarding.success.hasSuccessPlanReveal, true);
+    assert.strictEqual(onboarding.success.hasPlanReady, true);
+    assert.ok(onboarding.success.planPreviewRows >= 3);
+    assert.deepStrictEqual(onboarding.dashboard, {
+      pathname: "/dashboard",
+      planStatus: 200,
+      planEntries: onboarding.dashboard.planEntries,
+      planIncludesPlumbing: true,
+      planIncludesUpland: true,
+      settingsStatus: 200,
+      settingsBusinessProfileCity: "Upland",
+      authClaims: onboarding.dashboard.authClaims,
+    });
+    assert.ok(onboarding.dashboard.planEntries >= 3);
 
     console.log(`Blawgy browser smoke checks passed (${desktopRoutes.length} desktop routes, mobile dashboard, key interactions).`);
   } finally {

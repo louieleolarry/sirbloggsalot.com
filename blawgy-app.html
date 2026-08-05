@@ -42,6 +42,7 @@
         role: "client",
         onboardingRequired: true
       };
+      var localJourneyUserKey = "blawgy:local-journey-user:v1";
 
       window.__BLAWGY_API_BASE__ = window.location.origin;
       window.fbq = window.fbq || function () {};
@@ -61,6 +62,23 @@
       function encodeBearerPayload(payload) {
         var json = JSON.stringify(payload);
         return btoa(json).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      }
+
+      function readLocalJourneyUser() {
+        try {
+          var raw = localStorage.getItem(localJourneyUserKey);
+          return raw ? JSON.parse(raw) : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function writeLocalJourneyUser(user) {
+        try {
+          localStorage.setItem(localJourneyUserKey, JSON.stringify(user));
+        } catch (error) {
+          console.warn("Could not save local Blawgy journey user", error);
+        }
       }
 
       function installLocalSession(sessionUser) {
@@ -117,6 +135,9 @@
               method: "POST",
               headers: { "content-type": "application/json" }
             }).finally(function () {
+              try {
+                localStorage.removeItem(localJourneyUserKey);
+              } catch (error) {}
               window.__BLAWGY_LOCAL_AUTH__.currentUser = null;
             });
           }
@@ -141,7 +162,15 @@
         try {
           localStorage.removeItem("useMockData");
           localStorage.removeItem("useMockAdmin");
-          localStorage.setItem("currentSite", JSON.stringify({ site: site, email: email }));
+          var existingSite = null;
+          try {
+            existingSite = JSON.parse(localStorage.getItem("currentSite") || "null");
+          } catch (error) {
+            existingSite = null;
+          }
+          if (!existingSite || !existingSite.site || window.location.pathname === "/signup") {
+            localStorage.setItem("currentSite", JSON.stringify({ site: site, email: email }));
+          }
         } catch (error) {
           console.warn("Could not seed local Blawgy state", error);
         }
@@ -150,7 +179,20 @@
       }
 
       function userForCurrentRoute() {
-        return window.location.pathname === "/signup" ? firstRunUser : fallbackUser;
+        if (window.location.pathname === "/signup") {
+          writeLocalJourneyUser(firstRunUser);
+          return firstRunUser;
+        }
+        var savedUser = readLocalJourneyUser();
+        if (
+          savedUser &&
+          (window.location.pathname === "/onboarding" ||
+            window.location.pathname === "/success" ||
+            window.location.pathname === "/dashboard")
+        ) {
+          return savedUser;
+        }
+        return fallbackUser;
       }
 
       var localBearer = installLocalSession(userForCurrentRoute());
