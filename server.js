@@ -85,6 +85,8 @@ function isBlawgyClientRoute(pathname) {
 
   const exactRoutes = new Set([
     "/account",
+    "/login",
+    "/signup",
     "/dashboard",
     "/keyword-finder",
     "/pages",

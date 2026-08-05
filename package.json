@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "prepare:blawgy": "node scripts/prepare-blawgy-local-app.js",
+    "sync:blawgy-homepage": "node scripts/sync-blawgy-homepage.js",
     "dev": "SIR_BLOGGS_ENABLE_BLAWGY_CLIENT=1 SIR_BLOGGS_TRUST_BLAWGY_BEARER=1 node server.js",
     "start": "node server.js",
     "check:blawgy-upstream": "node scripts/check-blawgy-upstream-assets.js",
-    "check:blawgy-strict": "npm run check:blawgy-upstream && SIR_BLOGGS_REQUIRE_BLAWGY_FIXTURES=1 npm run check",
-    "check": "node --check server.js && node --check app.js && node --check lib/blawgy-compat.js && node --check scripts/prepare-blawgy-local-app.js && node --check scripts/check-blawgy-static-contract.js && node --check scripts/check-blawgy-client-endpoints.js && node --check scripts/check-blawgy-live-fixtures.js && node --check scripts/check-blawgy-browser-smoke.js && node --check scripts/check-blawgy-session-bridge.js && node --check scripts/sanitize-blawgy-har.js && node scripts/prepare-blawgy-local-app.js && node scripts/check-blawgy-static-contract.js && node scripts/check-routes.js && node scripts/check-auth-helpers.js && node scripts/check-blawgy-compat.js && node scripts/check-blawgy-client-endpoints.js && node scripts/check-blawgy-live-fixtures.js && node scripts/check-blawgy-live-fixtures.js --self-test && node scripts/check-blawgy-browser-smoke.js && node scripts/check-blawgy-session-bridge.js"
+    "check:blawgy-homepage": "node scripts/check-blawgy-homepage-parity.js",
+    "check:blawgy-strict": "npm run check:blawgy-upstream && SIR_BLOGGS_REQUIRE_BLAWGY_FIXTURES=1 npm run check && npm run check:blawgy-homepage",
+    "check": "node --check server.js && node --check app.js && node --check lib/blawgy-compat.js && node --check scripts/prepare-blawgy-local-app.js && node --check scripts/sync-blawgy-homepage.js && node --check scripts/check-blawgy-static-contract.js && node --check scripts/check-blawgy-client-endpoints.js && node --check scripts/check-blawgy-live-fixtures.js && node --check scripts/check-blawgy-homepage-parity.js && node --check scripts/check-blawgy-browser-smoke.js && node --check scripts/check-blawgy-session-bridge.js && node --check scripts/sanitize-blawgy-har.js && node scripts/prepare-blawgy-local-app.js && node scripts/check-blawgy-static-contract.js && node scripts/check-routes.js && node scripts/check-auth-helpers.js && node scripts/check-blawgy-compat.js && node scripts/check-blawgy-client-endpoints.js && node scripts/check-blawgy-live-fixtures.js && node scripts/check-blawgy-live-fixtures.js --self-test && node scripts/check-blawgy-browser-smoke.js && node scripts/check-blawgy-session-bridge.js"
   }
 }

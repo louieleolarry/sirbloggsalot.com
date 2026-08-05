@@ -4,27 +4,32 @@ const path = require("path");
 const indexPath = path.join(__dirname, "..", "index.html");
 const html = fs.readFileSync(indexPath, "utf8");
 const required = [
-  'data-primary-nav',
-  'id="features"',
-  'id="pricing"',
-  'id="faq"',
-  'href="/blog"',
+  "<title>Be the brand AI recommends</title>",
+  'data-section="hero"',
+  'data-section="logo_cloud"',
+  'data-section="pricing"',
+  'data-section="faq"',
   'href="/login"',
   'href="/signup"',
-  'class="assistant-widget"',
-  'data-auth-login',
-  'data-auth-account',
-  'data-route-page="account"',
-  'data-account-email',
-  'data-account-view="settings"',
-  'data-settings-tab="cms"',
-  "Content Plan",
-  "CMS Connect",
+  "/assets/sirbloggsalot-logo.svg",
+  "Trusted by fast-growing companies.",
 ];
 
 const missing = required.filter((needle) => !html.includes(needle));
 if (missing.length) {
   console.error(`Missing required homepage markers: ${missing.join(", ")}`);
+  process.exit(1);
+}
+
+const forbidden = [
+  'class="assistant-widget"',
+  'data-route-page="account"',
+  "SEO content built around your brand, not just a keyword.",
+];
+
+const present = forbidden.filter((needle) => html.includes(needle));
+if (present.length) {
+  console.error(`Forbidden legacy homepage markers present: ${present.join(", ")}`);
   process.exit(1);
 }
 
