@@ -4,15 +4,27 @@ const path = require("path");
 const indexPath = path.join(__dirname, "..", "index.html");
 const html = fs.readFileSync(indexPath, "utf8");
 const required = [
-  "<title>Be the brand AI recommends</title>",
-  'data-section="hero"',
-  'data-section="logo_cloud"',
-  'data-section="pricing"',
-  'data-section="faq"',
+  'class="promo-bar"',
+  "Annual plan special pricing ends August 31st",
+  'data-primary-nav',
+  "Be the brand",
+  "AI recommends.",
+  "Get recommended in ChatGPT, Google AI, Claude, Perplexity &amp; Gemini",
+  'id="features"',
+  'id="pricing"',
+  'id="faq"',
+  'href="/blog"',
   'href="/login"',
   'href="/signup"',
-  "/assets/sirbloggsalot-logo.svg",
-  "Trusted by fast-growing companies.",
+  'class="assistant-widget"',
+  'data-auth-login',
+  'data-auth-account',
+  'data-route-page="account"',
+  'data-account-email',
+  'data-account-view="settings"',
+  'data-settings-tab="cms"',
+  "Content Plan",
+  "CMS Connect",
 ];
 
 const missing = required.filter((needle) => !html.includes(needle));
@@ -22,9 +34,12 @@ if (missing.length) {
 }
 
 const forbidden = [
-  'class="assistant-widget"',
-  'data-route-page="account"',
+  'data-section="logo_cloud"',
+  'data-section="example_articles"',
+  'data-section="bottom_cta"',
   "SEO content built around your brand, not just a keyword.",
+  "self.__next_f.push",
+  "/_next/static/chunks/",
 ];
 
 const present = forbidden.filter((needle) => html.includes(needle));

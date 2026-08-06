@@ -4,6 +4,7 @@ const navLinks = Array.from(document.querySelectorAll("[data-route]"));
 const routePages = Array.from(document.querySelectorAll("[data-route-page]"));
 const dropdown = document.querySelector("[data-nav-dropdown]");
 const dropdownToggle = document.querySelector("[data-nav-dropdown-toggle]");
+const dropdownMenu = document.querySelector("[data-nav-dropdown-menu]");
 const billingButtons = Array.from(document.querySelectorAll("[data-billing-toggle]"));
 const priceValues = Array.from(document.querySelectorAll("[data-price]"));
 const priceNotes = Array.from(document.querySelectorAll("[data-price-note]"));
@@ -51,6 +52,7 @@ const authState = {
   user: null,
 };
 let accountState = null;
+let dropdownCloseTimer = null;
 
 function resolveRoute(pathname) {
   if (pathname.startsWith("/case-studies/")) return "case-study";
@@ -71,12 +73,32 @@ function setActiveNav(route) {
 
 function closeDropdown() {
   if (!dropdown || !dropdownToggle) return;
+  clearDropdownClose();
   dropdown.classList.remove("is-open");
   dropdownToggle.setAttribute("aria-expanded", "false");
 }
 
+function openDropdown() {
+  if (!dropdown || !dropdownToggle) return;
+  clearDropdownClose();
+  dropdown.classList.add("is-open");
+  dropdownToggle.setAttribute("aria-expanded", "true");
+}
+
+function clearDropdownClose() {
+  if (!dropdownCloseTimer) return;
+  window.clearTimeout(dropdownCloseTimer);
+  dropdownCloseTimer = null;
+}
+
+function scheduleDropdownClose() {
+  clearDropdownClose();
+  dropdownCloseTimer = window.setTimeout(closeDropdown, 220);
+}
+
 function toggleDropdown() {
   if (!dropdown || !dropdownToggle) return;
+  clearDropdownClose();
   const open = !dropdown.classList.contains("is-open");
   dropdown.classList.toggle("is-open", open);
   dropdownToggle.setAttribute("aria-expanded", String(open));
@@ -172,7 +194,10 @@ function renderAuthState() {
 
   if (loginLink) loginLink.hidden = signedIn;
   if (signupLink) signupLink.hidden = signedIn;
-  if (accountLink) accountLink.hidden = !signedIn;
+  if (accountLink) {
+    accountLink.hidden = !signedIn;
+    accountLink.setAttribute("aria-label", signedIn ? `Open account for ${authState.user.email}` : "Open account");
+  }
   logoutButtons.forEach((button) => {
     button.hidden = !signedIn;
   });
@@ -563,9 +588,24 @@ toggle.addEventListener("click", () => {
 
 if (dropdownToggle) {
   dropdownToggle.addEventListener("click", (event) => {
+    event.preventDefault();
     event.stopPropagation();
     toggleDropdown();
   });
+}
+
+if (dropdown) {
+  dropdown.addEventListener("mouseenter", openDropdown);
+  dropdown.addEventListener("mouseleave", scheduleDropdownClose);
+  dropdown.addEventListener("focusout", (event) => {
+    if (dropdown.contains(event.relatedTarget)) return;
+    scheduleDropdownClose();
+  });
+}
+
+if (dropdownMenu) {
+  dropdownMenu.addEventListener("mouseenter", clearDropdownClose);
+  dropdownMenu.addEventListener("mouseleave", scheduleDropdownClose);
 }
 
 billingButtons.forEach((button) => {

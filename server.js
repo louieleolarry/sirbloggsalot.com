@@ -31,6 +31,9 @@ const maxJwksBytes = 128 * 1024;
 const accountStorePath = path.join(root, "data", "account-store.json");
 const enableBlawgyClient = process.env.SIR_BLOGGS_ENABLE_BLAWGY_CLIENT === "1";
 
+const privateStaticRoots = new Set(["data", "docs", "lib", "research", "scripts"]);
+const privateStaticFiles = new Set(["blawgy-app.html", "package.json", "server.js"]);
+
 let googleJwksCache = {
   expiresAt: 0,
   keys: [],
@@ -77,6 +80,8 @@ function sendJson(res, status, data, headers = {}) {
 function safeFile(urlPath) {
   const decoded = decodeURIComponent(urlPath.split("?")[0]);
   const normalized = path.normalize(decoded).replace(/^(\.\.[/\\])+/, "");
+  const firstSegment = normalized.split(/[\\/]/).filter(Boolean)[0];
+  if (privateStaticRoots.has(firstSegment) || privateStaticFiles.has(firstSegment)) return null;
   return path.join(root, normalized === "/" ? "/index.html" : normalized);
 }
 
@@ -799,6 +804,10 @@ async function serveStatic(req, res) {
   }
 
   let filePath = isBlawgyClientRoute(url.pathname) ? path.join(root, "blawgy-app.html") : safeFile(req.url);
+  if (!filePath) {
+    send(res, 404, { "content-type": "text/plain; charset=utf-8" }, "Not found");
+    return;
+  }
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, "index.html");
   }
