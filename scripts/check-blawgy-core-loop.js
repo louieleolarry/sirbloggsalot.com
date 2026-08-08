@@ -141,11 +141,18 @@ async function main() {
   // 4. Seed the content plan from the real clusters, then read an entry.
   const generate = await call(compat, "POST", `/api/plan/${SITE}/generate`, { horizonWeeks: 6 });
   assert.ok(generate.status === 200, "plan generate should be 200");
+  const seeded = (generate.json && generate.json.entries) || [];
+  assert.ok(seeded.length > 0, "generate should add entries seeded from the real clusters");
+  // Real keyword metrics + computed upside flow into the seeded entry (parity: the
+  // SPA renders "8,100 searches / Moderate (21/100) / Potential 405-891" from these).
+  const seededEntry = seeded.find((e) => e.seoMetrics && e.seoMetrics.searchVolume === 900) || seeded[0];
+  assert.strictEqual(seededEntry.seoMetrics.searchVolume, 900, "seeded entry should carry the real DataForSEO search volume");
+  assert.ok(seededEntry.upside && seededEntry.upside.high > 0, "seeded entry should have a computed traffic upside");
+
   const plan = await call(compat, "GET", `/api/plan/${SITE}`);
-  const entries = (plan.json && (plan.json.entries || (plan.json.plan && plan.json.plan.entries))) || [];
-  assert.ok(entries.length > 0, "plan should have entries seeded from real clusters");
-  const entryId = entries[0].id || (entries[0]._id && entries[0]._id.$oid) || entries[0]._id;
-  assert.ok(entryId, "entry should have an id");
+  assert.ok(plan.json.projection && plan.json.projection.high > 0, "plan projection should sum entry upsides");
+  const entryId = seededEntry.id || (seededEntry._id && seededEntry._id.$oid) || seededEntry._id;
+  assert.ok(entryId, "seeded entry should have an id");
 
   // 5. Generate the article (async worker) -> real (mocked) content, status published.
   const queued = await call(compat, "PUT", `/generate-blog/${encodeURIComponent(entryId)}`, { site: SITE });
