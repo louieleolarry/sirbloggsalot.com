@@ -28,7 +28,7 @@ const googleJwksUrl = "https://www.googleapis.com/oauth2/v3/certs";
 const googleTokenIssuers = new Set(["accounts.google.com", "https://accounts.google.com"]);
 const maxBodyBytes = 64 * 1024;
 const maxJwksBytes = 128 * 1024;
-const accountStorePath = path.join(root, "data", "account-store.json");
+const accountStorePath = process.env.SIR_BLOGGS_ACCOUNT_STORE_PATH || path.join(root, "data", "account-store.json");
 const enableBlawgyClient = process.env.SIR_BLOGGS_ENABLE_BLAWGY_CLIENT === "1";
 
 const privateStaticRoots = new Set(["data", "docs", "lib", "research", "scripts"]);
@@ -240,6 +240,16 @@ async function readRequestJson(request) {
   });
 }
 
+let storeQueue = Promise.resolve();
+
+// Serialize all auth/account store mutations so concurrent read-modify-write
+// cycles can't drop a just-issued session or truncate a file mid-write.
+function queueStoreMutation(task) {
+  const next = storeQueue.then(task);
+  storeQueue = next.catch(() => {});
+  return next;
+}
+
 async function readAuthStore() {
   try {
     const parsed = JSON.parse(await fsp.readFile(authStorePath, "utf8"));
@@ -258,14 +268,18 @@ async function readAuthStore() {
 
 async function writeAuthStore(store) {
   await fsp.mkdir(path.dirname(authStorePath), { recursive: true });
-  await fsp.writeFile(authStorePath, `${JSON.stringify(store, null, 2)}\n`);
+  const tmpPath = `${authStorePath}.${process.pid}.${Date.now()}.tmp`;
+  await fsp.writeFile(tmpPath, `${JSON.stringify(store, null, 2)}\n`);
+  await fsp.rename(tmpPath, authStorePath);
 }
 
 async function mutateAuthStore(mutator) {
-  const store = await readAuthStore();
-  const result = await mutator(store);
-  await writeAuthStore(store);
-  return result;
+  return queueStoreMutation(async () => {
+    const store = await readAuthStore();
+    const result = await mutator(store);
+    await writeAuthStore(store);
+    return result;
+  });
 }
 
 function getJson(url) {
@@ -482,14 +496,18 @@ async function readAccountStore() {
 
 async function writeAccountStore(store) {
   await fsp.mkdir(path.dirname(accountStorePath), { recursive: true });
-  await fsp.writeFile(accountStorePath, `${JSON.stringify(store, null, 2)}\n`);
+  const tmpPath = `${accountStorePath}.${process.pid}.${Date.now()}.tmp`;
+  await fsp.writeFile(tmpPath, `${JSON.stringify(store, null, 2)}\n`);
+  await fsp.rename(tmpPath, accountStorePath);
 }
 
 async function mutateAccountStore(mutator) {
-  const store = await readAccountStore();
-  const result = await mutator(store);
-  await writeAccountStore(store);
-  return result;
+  return queueStoreMutation(async () => {
+    const store = await readAccountStore();
+    const result = await mutator(store);
+    await writeAccountStore(store);
+    return result;
+  });
 }
 
 function defaultAccount(user) {
@@ -566,14 +584,21 @@ function publicAccountData(account, user) {
   };
 }
 
-async function accountForUser(user) {
-  return mutateAccountStore((store) => {
-    const key = user.id;
-    if (!store.accounts[key]) store.accounts[key] = defaultAccount(user);
-    store.accounts[key].profile.ownerEmail = user.email;
-    store.accounts[key].profile.role = user.role || "client";
-    return publicAccountData(store.accounts[key], user);
-  });
+// Read-only account view: never writes on a GET (the historical flaky-login/EACCES
+// cause was writing account-store.json on every read). The account is created
+// lazily on the first real mutation in serveAccountApi's mutate block below.
+async function accountViewForUser(user) {
+  const store = await readAccountStore();
+  const account = store.accounts[user.id] || defaultAccount(user);
+  const view = {
+    ...account,
+    profile: {
+      ...account.profile,
+      ownerEmail: user.email,
+      role: user.role || "client",
+    },
+  };
+  return publicAccountData(view, user);
 }
 
 function patchObject(base, patch) {
@@ -598,12 +623,12 @@ async function serveAccountApi(req, res, url) {
   const body = ["POST", "PUT", "PATCH"].includes(req.method) ? await readRequestJson(req) : {};
 
   if (req.method === "GET" && parts[0] === "summary") {
-    sendJson(res, 200, { ok: true, account: await accountForUser(user) });
+    sendJson(res, 200, { ok: true, account: await accountViewForUser(user) });
     return true;
   }
 
   if (req.method === "GET") {
-    const account = await accountForUser(user);
+    const account = await accountViewForUser(user);
     const directReads = {
       settings: account.settings,
       products: account.products,
