@@ -12,6 +12,12 @@ const host = process.env.HOST || "127.0.0.1";
 
 const googleClientId = process.env.SIR_BLOGGS_GOOGLE_CLIENT_ID || "";
 const authSessionSecret = process.env.SIR_BLOGGS_AUTH_SESSION_SECRET || crypto.randomBytes(32).toString("hex");
+if (!process.env.SIR_BLOGGS_AUTH_SESSION_SECRET) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SIR_BLOGGS_AUTH_SESSION_SECRET must be set in production; a per-boot random secret logs every user out on restart.");
+  }
+  console.warn("[auth] SIR_BLOGGS_AUTH_SESSION_SECRET is not set — using a random per-boot secret (sessions won't survive a restart).");
+}
 const authStorePath = process.env.SIR_BLOGGS_AUTH_STORE_PATH || path.join(root, "data", "auth-store.json");
 const authAdminEmails = (process.env.SIR_BLOGGS_AUTH_ADMIN_EMAILS || "")
   .split(",")
