@@ -63,6 +63,29 @@ async function main() {
   );
   assert.strictEqual(parsed.businessType, "local", "json:true must return a parsed object");
 
+  // 5. codex provider: selected explicitly (no API key), driven by an injected
+  //    `run` that writes the model's final message to the --output-last-message file.
+  const codex = createLlm({ SIR_BLOGGS_LLM_PROVIDER: "codex" });
+  assert.ok(codex && codex.provider === "codex", "SIR_BLOGGS_LLM_PROVIDER=codex selects codex without any API key");
+
+  const fs = require("fs/promises");
+  function codexRun(response) {
+    return async (bin, args, stdin) => {
+      assert.strictEqual(bin, "codex", "codex runner should invoke the codex binary");
+      assert.ok(args.includes("exec"), "codex should run the exec subcommand");
+      const oIndex = args.indexOf("-o");
+      assert.ok(oIndex >= 0, "codex should pass -o (output-last-message)");
+      assert.ok(typeof stdin === "string" && stdin.includes("p"), "prompt should be piped via stdin");
+      await fs.writeFile(args[oIndex + 1], response);
+    };
+  }
+
+  const cText = await codex.complete({ system: "s", prompt: "p" }, { run: codexRun("hello from codex") });
+  assert.strictEqual(cText, "hello from codex", "codex complete() returns the final message");
+
+  const cTitles = await codex.articleTitles({ keyword: "widgets", siteContext: {} }, { run: codexRun('```json\n["A","B","C"]\n```') });
+  assert.ok(Array.isArray(cTitles) && cTitles.length === 3, "codex articleTitles parses JSON output");
+
   console.log("LLM provider checks passed.");
 }
 
