@@ -20,87 +20,37 @@
   </style>
   <script>
     (function () {
-      var site = "sirbloggsalot.com";
-      var subscription = {
-        isActive: true,
-        plan: "growth",
-        credits: 847,
-        maxCredits: 1000
-      };
-      var fallbackUser = {
-        id: "local-blawgy-app",
-        email: "owner@sirbloggsalot.com",
-        name: "Sir Bloggsalot Owner",
-        picture: "",
-        role: "admin"
-      };
-      var firstRunUser = {
-        id: "local-blawgy-signup",
-        email: "new-owner@sirbloggsalot.com",
-        name: "Sir Bloggsalot New Owner",
-        picture: "",
-        role: "client",
-        onboardingRequired: true
-      };
-      var localJourneyUserKey = "blawgy:local-journey-user:v1";
-
+      // SirBloggsAlot boot shim for the vendored Blawgy SPA bundle.
+      //
+      // Authentication is the REAL server session: the HttpOnly `sirbloggs_session`
+      // cookie issued by POST /api/auth/google and verified server-side. This shim's
+      // only job is to adapt that session into the small set of Firebase-shaped
+      // globals the compiled bundle reads (__BLAWGY_LOCAL_USER__ / __BLAWGY_LOCAL_SITE__
+      // / __BLAWGY_LOCAL_AUTH__ / __BLAWGY_API_BASE__).
+      //
+      // It never fabricates an identity and never forges a bearer token. An
+      // unauthenticated visitor is redirected to /login. The browser attaches the
+      // cookie automatically on same-origin requests, so no Authorization header is
+      // synthesized here and no fetch/XHR patching is done.
+      var defaultSite = "sirbloggsalot.com";
       window.__BLAWGY_API_BASE__ = window.location.origin;
+
+      // Facebook Pixel no-op stub so bundle analytics calls don't throw.
       window.fbq = window.fbq || function () {};
       window.fbq.loaded = true;
       window.fbq.version = "2.0";
       window.fbq.queue = [];
       window._fbq = window.fbq;
 
-      function localRequest(url) {
-        try {
-          return new URL(url, window.location.origin).origin === window.location.origin;
-        } catch (error) {
-          return false;
-        }
-      }
+      function installSession(sessionUser) {
+        var email = String(sessionUser.email || "").toLowerCase();
+        var name = sessionUser.name || email;
+        var picture = sessionUser.picture || "";
+        // Role/admin status comes from the SERVER session only.
+        var role = sessionUser.role === "admin" ? "admin" : "client";
+        var subject = sessionUser.id || sessionUser.sub || email;
+        var sites = Array.isArray(sessionUser.sites) ? sessionUser.sites : [];
 
-      function encodeBearerPayload(payload) {
-        var json = JSON.stringify(payload);
-        return btoa(json).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-      }
-
-      function readLocalJourneyUser() {
-        try {
-          var raw = localStorage.getItem(localJourneyUserKey);
-          return raw ? JSON.parse(raw) : null;
-        } catch (error) {
-          return null;
-        }
-      }
-
-      function writeLocalJourneyUser(user) {
-        try {
-          localStorage.setItem(localJourneyUserKey, JSON.stringify(user));
-        } catch (error) {
-          console.warn("Could not save local Blawgy journey user", error);
-        }
-      }
-
-      function installLocalSession(sessionUser) {
-        var user = sessionUser && sessionUser.email ? sessionUser : fallbackUser;
-        var email = String(user.email || fallbackUser.email).toLowerCase();
-        var name = user.name || email;
-        var picture = user.picture || "";
-        var role = user.role === "admin" ? "admin" : "client";
-        var subject = user.id || user.sub || email;
-        var bearerPayload = {
-          sub: subject,
-          email: email,
-          name: name,
-          picture: picture,
-          role: role,
-          onboardingRequired: Boolean(user.onboardingRequired)
-        };
-        var bearer = "Bearer local." + encodeBearerPayload(bearerPayload) + ".sig";
-        var token = bearer.replace(/^Bearer\s+/i, "");
-
-        window.__BLAWGY_LOCAL_BEARER__ = bearer;
-        window.__BLAWGY_LOCAL_TOKEN__ = token;
         window.__BLAWGY_LOCAL_USER__ = {
           id: subject,
           uid: subject,
@@ -111,124 +61,43 @@
           photoURL: picture,
           role: role,
           isAdmin: role === "admin",
-          onboardingRequired: Boolean(user.onboardingRequired),
-          sites: [{ site: site, email: email }],
+          sites: sites,
           blogType: "wordpress",
-          subscription: subscription,
-          getIdToken: function () {
-            return Promise.resolve(window.__BLAWGY_LOCAL_TOKEN__);
-          },
-          getIdTokenResult: function () {
-            return Promise.resolve({ token: window.__BLAWGY_LOCAL_TOKEN__ });
-          }
+          // Client-side seed only; the server (/me, /get-site-settings, /api/plan)
+          // is the source of truth and overwrites this on load. Billing is stubbed
+          // in this phase.
+          subscription: { isActive: true, plan: "growth", credits: 1000, maxCredits: 1000 },
+          getIdToken: function () { return Promise.resolve(""); },
+          getIdTokenResult: function () { return Promise.resolve({ token: "" }); }
         };
+
+        window.__BLAWGY_LOCAL_SITE__ = {
+          site: defaultSite,
+          email: email,
+          settings: { site: defaultSite, blogType: "wordpress", gsc: {} },
+          success: true,
+          onboard: true
+        };
+
         window.__BLAWGY_LOCAL_AUTH__ = {
           currentUser: window.__BLAWGY_LOCAL_USER__,
           onAuthStateChanged: function (callback) {
-            setTimeout(function () {
-              callback(window.__BLAWGY_LOCAL_USER__);
-            }, 0);
+            setTimeout(function () { callback(window.__BLAWGY_LOCAL_USER__); }, 0);
             return function () {};
           },
           signOut: function () {
+            window.__blawgyIntentionalSignOut = true;
             return fetch("/api/auth/logout", {
               method: "POST",
-              headers: { "content-type": "application/json" }
+              headers: { "content-type": "application/json" },
+              credentials: "same-origin"
             }).finally(function () {
-              try {
-                localStorage.removeItem(localJourneyUserKey);
-              } catch (error) {}
               window.__BLAWGY_LOCAL_AUTH__.currentUser = null;
+              window.location.replace("/login");
             });
           }
         };
-        window.__BLAWGY_LOCAL_SITE__ = {
-          site: site,
-          email: email,
-          settings: {
-            site: site,
-            blogType: "wordpress",
-            product: "Automated SEO articles and content planning for local businesses.",
-            gsc: {
-              connected_site: "sc-domain:" + site
-            }
-          },
-          success: true,
-          onboard: true,
-          blogType: "wordpress",
-          subscription: subscription
-        };
-
-        try {
-          localStorage.removeItem("useMockData");
-          localStorage.removeItem("useMockAdmin");
-          var existingSite = null;
-          try {
-            existingSite = JSON.parse(localStorage.getItem("currentSite") || "null");
-          } catch (error) {
-            existingSite = null;
-          }
-          if (!existingSite || !existingSite.site || window.location.pathname === "/signup") {
-            localStorage.setItem("currentSite", JSON.stringify({ site: site, email: email }));
-          }
-        } catch (error) {
-          console.warn("Could not seed local Blawgy state", error);
-        }
-
-        return bearer;
       }
-
-      function userForCurrentRoute() {
-        if (window.location.pathname === "/signup") {
-          writeLocalJourneyUser(firstRunUser);
-          return firstRunUser;
-        }
-        var savedUser = readLocalJourneyUser();
-        if (
-          savedUser &&
-          (window.location.pathname === "/onboarding" ||
-            window.location.pathname === "/success" ||
-            window.location.pathname === "/dashboard")
-        ) {
-          return savedUser;
-        }
-        return fallbackUser;
-      }
-
-      var localBearer = installLocalSession(userForCurrentRoute());
-
-      if (window.fetch) {
-        var originalFetch = window.fetch;
-        window.fetch = function (input, init) {
-          var url = typeof input === "string" ? input : input && input.url;
-          if (localRequest(url)) {
-            init = init || {};
-            var headers = new Headers(init.headers || (input && input.headers) || {});
-            if (!headers.has("authorization")) headers.set("authorization", localBearer);
-            init.headers = headers;
-          }
-          return originalFetch.call(this, input, init);
-        };
-      }
-
-      var originalOpen = XMLHttpRequest.prototype.open;
-      var originalSend = XMLHttpRequest.prototype.send;
-
-      XMLHttpRequest.prototype.open = function (method, url) {
-        this.__blawgyLocalUrl = url;
-        return originalOpen.apply(this, arguments);
-      };
-
-      XMLHttpRequest.prototype.send = function () {
-        if (localRequest(this.__blawgyLocalUrl)) {
-          try {
-            this.setRequestHeader("authorization", localBearer);
-          } catch (error) {
-            console.warn("Could not attach local Blawgy bearer", error);
-          }
-        }
-        return originalSend.apply(this, arguments);
-      };
 
       function loadBlawgyBundle() {
         var script = document.createElement("script");
@@ -237,21 +106,25 @@
         document.head.appendChild(script);
       }
 
+      function redirectToLogin() {
+        var next = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.replace("/login?next=" + next);
+      }
+
       fetch("/api/auth/session", {
-        headers: { accept: "application/json" }
+        headers: { accept: "application/json" },
+        credentials: "same-origin"
       })
-        .then(function (response) {
-          return response.ok ? response.json() : null;
-        })
+        .then(function (response) { return response.ok ? response.json() : null; })
         .then(function (session) {
           if (session && session.authenticated && session.user) {
-            localBearer = installLocalSession(session.user);
+            installSession(session.user);
+            loadBlawgyBundle();
+          } else {
+            redirectToLogin();
           }
         })
-        .catch(function () {
-          localBearer = installLocalSession(userForCurrentRoute());
-        })
-        .finally(loadBlawgyBundle);
+        .catch(function () { redirectToLogin(); });
     })();
   </script>
 </head>

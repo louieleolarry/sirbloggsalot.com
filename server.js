@@ -88,10 +88,12 @@ function safeFile(urlPath) {
 function isBlawgyClientRoute(pathname) {
   if (!enableBlawgyClient) return false;
 
+  // NOTE: /login and /signup are intentionally NOT served by the Blawgy SPA.
+  // The SPA's own login page is Firebase-based; SBA authenticates with Google
+  // Identity Services -> signed cookie, so those routes fall through to the
+  // custom index.html sign-in, which then redirects into the SPA.
   const exactRoutes = new Set([
     "/account",
-    "/login",
-    "/signup",
     "/dashboard",
     "/keyword-finder",
     "/pages",
@@ -722,6 +724,7 @@ async function serveApi(req, res, url) {
       googleAuthEnabled: Boolean(googleClientId),
       googleClientId,
       allowedDomains: googleAllowedDomains,
+      blawgyClientEnabled: enableBlawgyClient,
     });
     return true;
   }

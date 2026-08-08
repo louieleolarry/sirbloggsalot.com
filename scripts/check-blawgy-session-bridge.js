@@ -18,7 +18,9 @@ const sessionHeader = "coo" + "kie";
 const cdpSetSessionMethod = "Network.setCoo" + "kie";
 
 runtime.SIR_BLOGGS_ENABLE_BLAWGY_CLIENT = "1";
-runtime.SIR_BLOGGS_TRUST_BLAWGY_BEARER = "1";
+// Cookie-only auth: the vendored SPA must reflect the real signed-cookie session,
+// not any bearer. The unsigned-Bearer trust path has been removed from the server.
+runtime.SIR_BLOGGS_TRUST_BLAWGY_BEARER = "0";
 runtime.SIR_BLOGGS_AUTH_SESSION_SECRET = sessionKey;
 runtime.SIR_BLOGGS_AUTH_STORE_PATH = authStorePath;
 runtime.SIR_BLOGGS_BLAWGY_STORE_PATH = blawgyStorePath;

@@ -502,6 +502,13 @@ async function handleGoogleCredential(response) {
     await loadAccountState();
 
     const next = new URLSearchParams(window.location.search).get("next");
+    const target = next && next.startsWith("/") ? next : "/dashboard";
+    // When the Blawgy SPA is enabled it is the product surface, so hand off to it
+    // with a full navigation (the SPA is a separate document served by the server).
+    if (authState.config?.blawgyClientEnabled) {
+      window.location.assign(target);
+      return;
+    }
     if (next && next.startsWith("/")) {
       window.history.pushState({}, "", next);
       renderRoute();
