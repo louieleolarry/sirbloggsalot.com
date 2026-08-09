@@ -97,6 +97,18 @@ for (const [from, to] of replacements) {
   bundle = bundle.split(from).join(to);
 }
 
+// Phase 2: point the SPA's Search Console OAuth at OUR Google client id. The redirect
+// URI is already re-homed to our origin above; the client id is public and injected at
+// build time from the env so it stays out of source. No-op until the cred is set — so
+// GSC connect requires re-running this script (and redeploying) after the OAuth client
+// exists. See docs/superpowers/specs/2026-08-09-phase2-visibility-publishing-design.md.
+const BLAWGY_GSC_CLIENT_ID = "751735189062-rpt4fatsgmp5svkir4h3jn64hvsulp6v.apps.googleusercontent.com";
+const ourGscClientId = process.env.SIR_BLOGGS_GSC_CLIENT_ID;
+if (ourGscClientId && ourGscClientId !== BLAWGY_GSC_CLIENT_ID) {
+  bundle = bundle.split(BLAWGY_GSC_CLIENT_ID).join(ourGscClientId);
+  console.log("Patched Search Console OAuth client id -> SIR_BLOGGS_GSC_CLIENT_ID");
+}
+
 bundle = bundle.replace(/\n?\/\/# sourceMappingURL=main\.715d1cb0\.js\.map\s*$/, "");
 
 fs.writeFileSync(localBundle, bundle);
