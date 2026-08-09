@@ -521,18 +521,30 @@ async function handleGoogleCredential(response) {
 async function renderGoogleSignIn() {
   if (!googleSignIn || !authState.config?.googleAuthEnabled || authState.user) return;
 
-  await loadGoogleIdentityScript();
-  window.google.accounts.id.initialize({
-    client_id: authState.config.googleClientId,
-    callback: handleGoogleCredential,
-  });
-  window.google.accounts.id.renderButton(googleSignIn, {
-    theme: "outline",
-    size: "large",
-    text: "signin_with",
-    shape: "rectangular",
-    width: Math.min(360, googleSignIn.offsetWidth || 360),
-  });
+  try {
+    await loadGoogleIdentityScript();
+    window.google.accounts.id.initialize({
+      client_id: authState.config.googleClientId,
+      callback: handleGoogleCredential,
+    });
+    window.google.accounts.id.renderButton(googleSignIn, {
+      theme: "outline",
+      size: "large",
+      text: "signin_with",
+      shape: "rectangular",
+      width: Math.min(360, googleSignIn.offsetWidth || 360),
+    });
+  } catch (error) {
+    // A transient GIS load failure must not leave the sign-in blank — offer a retry.
+    googleSignIn.innerHTML = "";
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.textContent = "Continue with Google";
+    retry.className = "google-signin-retry";
+    retry.addEventListener("click", () => renderGoogleSignIn());
+    googleSignIn.appendChild(retry);
+    setAuthMessage("Tap Continue with Google to sign in.");
+  }
 }
 
 async function initAuth() {
@@ -773,11 +785,11 @@ logoutButtons.forEach((button) => {
       authState.user = null;
       renderAuthState();
       setAuthMessage("Signed out.");
-
-      if (resolveRoute(window.location.pathname) === "account") {
-        window.history.pushState({}, "", "/login?next=/account");
-        renderRoute();
+      if (window.location.pathname !== "/login") {
+        window.history.pushState({}, "", "/login");
       }
+      renderRoute();
+      renderGoogleSignIn();
     }
   });
 });
