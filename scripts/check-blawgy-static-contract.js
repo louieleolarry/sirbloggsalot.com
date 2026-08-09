@@ -3,7 +3,8 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const sourceDir = path.join(root, "research", "blawgy", "app-src");
+const discoveryDir = require("./discovery-dir");
+const sourceDir = path.join(discoveryDir, "research", "blawgy", "app-src");
 const compatPath = path.join(root, "lib", "blawgy-compat.js");
 const localBundlePath = path.join(root, "static", "js", "main.715d1cb0.local.js");
 const localShellPath = path.join(root, "blawgy-app.html");

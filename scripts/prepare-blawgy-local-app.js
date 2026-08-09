@@ -2,7 +2,8 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const sourceDir = path.join(root, "research", "blawgy");
+const discoveryDir = require("./discovery-dir");
+const sourceDir = path.join(discoveryDir, "research", "blawgy");
 const staticJsDir = path.join(root, "static", "js");
 const staticCssDir = path.join(root, "static", "css");
 const staticMediaDir = path.join(root, "static", "media");

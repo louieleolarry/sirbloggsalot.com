@@ -4,7 +4,8 @@ const fsp = require("fs/promises");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const sourceDir = path.join(root, "research", "blawgy", "app-src");
+const discoveryDir = require("./discovery-dir");
+const sourceDir = path.join(discoveryDir, "research", "blawgy", "app-src");
 const tmpStorePath = path.join(root, "data", "blawgy-client-endpoints.tmp.json");
 const runtime = process["en" + "v"];
 

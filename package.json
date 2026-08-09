@@ -5,6 +5,6 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "check": "node --check server.js && node --check app.js && node scripts/check-routes.js && node scripts/check-auth-helpers.js"
+    "check": "node --check server.js && node --check app.js && node --check lib/blawgy-compat.js && node scripts/check-routes.js && node scripts/check-auth-helpers.js && node scripts/check-blawgy-enablement.js && node scripts/check-account-store.js && node scripts/check-provider-scrape.js && node scripts/check-provider-llm.js && node scripts/check-provider-keywords.js && node scripts/check-blawgy-core-loop.js && node scripts/check-blawgy-hardening.js"
   }
 }

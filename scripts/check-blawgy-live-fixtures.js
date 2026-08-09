@@ -4,7 +4,8 @@ const fsp = require("fs/promises");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const fixtureDir = path.join(root, "research", "blawgy", "live-fixtures");
+const discoveryDir = require("./discovery-dir");
+const fixtureDir = path.join(discoveryDir, "research", "blawgy", "live-fixtures");
 const tmpStorePath = path.join(root, "data", "blawgy-live-fixtures.tmp.json");
 const runtime = process["en" + "v"];
 const requireFixtures = runtime.SIR_BLOGGS_REQUIRE_BLAWGY_FIXTURES === "1";

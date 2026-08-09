@@ -1,10 +1,13 @@
 node_modules/
 local-secrets*
+.env
+.env.*
 data/account-store.json
 data/auth-store.json
 data/blawgy-store.json
 data/*.tmp
-research/blawgy/live-fixtures/*.json
-!research/blawgy/live-fixtures/README.md
+# Blawgy reverse-engineering / discovery material lives outside this repo now,
+# under ~/Documents/Blog Automation Discovery (see scripts/discovery-dir.js).
+/research/
 .DS_Store
 ._*
