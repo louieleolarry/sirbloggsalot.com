@@ -2,7 +2,8 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const fixtureDir = path.join(root, "research", "blawgy", "live-fixtures");
+const discoveryDir = require("./discovery-dir");
+const fixtureDir = path.join(discoveryDir, "research", "blawgy", "live-fixtures");
 
 function usage() {
   console.error("Usage: node scripts/sanitize-blawgy-har.js /path/to/blawgy.har [output.json] [--include-writes]");

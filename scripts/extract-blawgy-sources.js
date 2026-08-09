@@ -2,8 +2,9 @@ const fs = require("fs");
 const path = require("path");
 
 const root = path.resolve(__dirname, "..");
-const mapPath = path.join(root, "research", "blawgy", "main.715d1cb0.js.map");
-const outputRoot = path.join(root, "research", "blawgy", "app-src");
+const discoveryDir = require("./discovery-dir");
+const mapPath = path.join(discoveryDir, "research", "blawgy", "main.715d1cb0.js.map");
+const outputRoot = path.join(discoveryDir, "research", "blawgy", "app-src");
 
 function cleanSourcePath(source) {
   return source

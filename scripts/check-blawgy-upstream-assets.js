@@ -5,10 +5,11 @@ const https = require("https");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
+const discoveryDir = require("./discovery-dir");
 const upstreamOrigin = "https://app.blawgy.com";
 const localAssets = {
-  "/static/js/main.715d1cb0.js": path.join(root, "research", "blawgy", "main.715d1cb0.js"),
-  "/static/css/main.371b1f5a.css": path.join(root, "research", "blawgy", "main.371b1f5a.css"),
+  "/static/js/main.715d1cb0.js": path.join(discoveryDir, "research", "blawgy", "main.715d1cb0.js"),
+  "/static/css/main.371b1f5a.css": path.join(discoveryDir, "research", "blawgy", "main.371b1f5a.css"),
 };
 
 function getText(url) {
