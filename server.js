@@ -857,7 +857,12 @@ async function serveStatic(req, res) {
     }
 
     const contentType = types[path.extname(filePath)] || "application/octet-stream";
-    send(res, 200, { "content-type": contentType, "cache-control": "no-store" }, req.method === "HEAD" ? "" : data);
+    let body = data;
+    if (path.basename(filePath) === "blawgy-app.html") {
+      // Inject the deployment's primary site into the SPA shim's default.
+      body = Buffer.from(String(data).replace(/__SBA_PRIMARY_SITE__/g, process.env.SIR_BLOGGS_PRIMARY_SITE || "sirbloggsalot.com"));
+    }
+    send(res, 200, { "content-type": contentType, "cache-control": "no-store" }, req.method === "HEAD" ? "" : body);
   });
 }
 
