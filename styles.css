@@ -216,6 +216,15 @@ nav[data-primary-nav] a[aria-current],
   gap: 8px;
 }
 
+.nav-dropdown::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: -12px;
+  right: -12px;
+  height: 22px;
+}
+
 .nav-dropdown-toggle {
   display: inline-grid;
   place-items: center;
@@ -260,8 +269,9 @@ nav[data-primary-nav] a[aria-current],
   box-shadow: 0 22px 60px rgba(15, 23, 42, 0.14);
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
   transform: translate(-50%, 8px);
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
 }
 
 .nav-dropdown-menu a {
@@ -284,7 +294,9 @@ nav[data-primary-nav] a[aria-current],
 .nav-dropdown:hover .nav-dropdown-menu {
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
   transform: translate(-50%, 0);
+  transition-delay: 0s;
 }
 
 .header-actions {
@@ -5044,6 +5056,10 @@ body.route-account .settings-tabs {
   .nav-dropdown {
     display: grid;
     grid-template-columns: 1fr auto;
+  }
+
+  .nav-dropdown::before {
+    content: none;
   }
 
   .nav-dropdown-menu {

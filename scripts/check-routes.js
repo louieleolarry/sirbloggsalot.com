@@ -460,6 +460,25 @@ if (accountOperationIndex === -1 || firstAccountPanelIndex === -1 || accountOper
   process.exit(1);
 }
 
+const desktopDropdownRule = styles.match(/\.nav-dropdown-menu\s*\{(?<body>[\s\S]*?)\n\}/)?.groups?.body || "";
+const desktopDropdownOffset = desktopDropdownRule.match(/top:\s*calc\(100%\s*\+\s*(?<gap>\d+)px\)/);
+if (desktopDropdownOffset && Number(desktopDropdownOffset.groups.gap) > 0) {
+  const bridgeRule = styles.match(/\.nav-dropdown::before\s*\{(?<body>[\s\S]*?)\n\}/)?.groups?.body || "";
+  if (!bridgeRule.includes('content: ""') || !bridgeRule.includes("position: absolute") || !bridgeRule.includes("top: 100%") || !bridgeRule.includes(`height: ${desktopDropdownOffset.groups.gap}px`)) {
+    console.error("Desktop nav dropdown must bridge the vertical hover gap between the top-level item and submenu.");
+    process.exit(1);
+  }
+}
+
+if (!/\.nav-dropdown:hover \.nav-dropdown-menu/.test(styles) || !/\.nav-dropdown:focus-within \.nav-dropdown-menu/.test(styles)) {
+  console.error("Desktop nav dropdown must stay open while hovering or focusing the full dropdown container.");
+  process.exit(1);
+}
+if (!/@media \(max-width: 980px\)[\s\S]*\.nav-dropdown::before\s*\{[\s\S]*content: none;[\s\S]*\}/.test(styles)) {
+  console.error("Mobile nav must disable the desktop dropdown hover bridge so it cannot cover stacked links.");
+  process.exit(1);
+}
+
 if (!html.includes('<span class="account-brand-mark">S</span>')) {
   console.error("Account sidebar brand mark must use the Sir Bloggsalot S mark.");
   process.exit(1);
