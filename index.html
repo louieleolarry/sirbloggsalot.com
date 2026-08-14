@@ -32,10 +32,106 @@
     <meta name="twitter:image" content="https://sirbloggsalot.com/assets/sirbloggsalot-og.png?v=20260804-social" />
     <meta name="twitter:image:alt" content="Sir Bloggsalot - SEO content built around your brand, not just a keyword." />
     <meta name="theme-color" content="#0f172a" />
-    <link rel="stylesheet" href="/styles.css?v=20260805-account-dashboard" />
+    <link rel="stylesheet" href="/styles.css?v=20260814-pages-generator" />
   </head>
   <body>
+    <svg class="account-icon-sprite" aria-hidden="true">
+      <symbol id="account-icon-home" viewBox="0 0 24 24">
+        <path d="M3 11.5 12 4l9 7.5"></path>
+        <path d="M5.5 10.5V20h13v-9.5"></path>
+        <path d="M9.5 20v-5h5v5"></path>
+      </symbol>
+      <symbol id="account-icon-write" viewBox="0 0 24 24">
+        <path d="M4 20h16"></path>
+        <path d="M5 16.5 16.5 5a2.1 2.1 0 0 1 3 3L8 19H5v-2.5z"></path>
+      </symbol>
+      <symbol id="account-icon-topics" viewBox="0 0 24 24">
+        <circle cx="10.5" cy="10.5" r="6.5"></circle>
+        <path d="m15.5 15.5 5 5"></path>
+      </symbol>
+      <symbol id="account-icon-rankings" viewBox="0 0 24 24">
+        <path d="m3 17 6-6 4 4 7-8"></path>
+        <path d="M15 7h5v5"></path>
+      </symbol>
+      <symbol id="account-icon-search-console" viewBox="0 0 24 24">
+        <path d="M5 4v16"></path>
+        <path d="M9 8h9"></path>
+        <path d="M9 13h5"></path>
+        <path d="M9 18h10"></path>
+      </symbol>
+      <symbol id="account-icon-mentions" viewBox="0 0 24 24">
+        <path d="M12 3.5 14.4 9l5.6 2.4-5.6 2.4L12 19.5l-2.4-5.7L4 11.4 9.6 9 12 3.5z"></path>
+        <path d="M18 3v4"></path>
+        <path d="M16 5h4"></path>
+      </symbol>
+      <symbol id="account-icon-sparkles" viewBox="0 0 24 24">
+        <path d="M12 3.5 14.4 9l5.6 2.4-5.6 2.4L12 19.5l-2.4-5.7L4 11.4 9.6 9 12 3.5z"></path>
+        <path d="M18 3v4"></path>
+        <path d="M16 5h4"></path>
+      </symbol>
+      <symbol id="account-icon-shield-check" viewBox="0 0 24 24">
+        <path d="M12 3.5 19 6v5.2c0 4.4-2.9 7.7-7 9.3-4.1-1.6-7-4.9-7-9.3V6l7-2.5z"></path>
+        <path d="m8.8 12 2.1 2.1 4.4-4.4"></path>
+      </symbol>
+      <symbol id="account-icon-store" viewBox="0 0 24 24">
+        <path d="M4 9h16l-1.2-4H5.2L4 9z"></path>
+        <path d="M5 9v10h14V9"></path>
+        <path d="M8 13h3v6"></path>
+        <path d="M14 13h3v3h-3z"></path>
+      </symbol>
+      <symbol id="account-icon-cube" viewBox="0 0 24 24">
+        <path d="M12 3.5 20 8v8l-8 4.5L4 16V8l8-4.5z"></path>
+        <path d="M4.5 8.3 12 12.6l7.5-4.3"></path>
+        <path d="M12 12.6v7.8"></path>
+      </symbol>
+      <symbol id="account-icon-calendar" viewBox="0 0 24 24">
+        <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+        <path d="M8 3v4"></path>
+        <path d="M16 3v4"></path>
+        <path d="M4 10h16"></path>
+        <path d="M8 14h2"></path>
+        <path d="M13 14h3"></path>
+      </symbol>
+      <symbol id="account-icon-settings" viewBox="0 0 24 24">
+        <path d="M4 7h7"></path>
+        <path d="M15 7h5"></path>
+        <circle cx="13" cy="7" r="2"></circle>
+        <path d="M4 17h5"></path>
+        <path d="M13 17h7"></path>
+        <circle cx="11" cy="17" r="2"></circle>
+      </symbol>
+      <symbol id="account-icon-help-circle" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8"></circle>
+        <path d="M9.8 9.5a2.4 2.4 0 1 1 3.8 2c-.9.6-1.6 1.2-1.6 2.5"></path>
+        <path d="M12 17h.01"></path>
+      </symbol>
+      <symbol id="account-icon-billing" viewBox="0 0 24 24">
+        <rect x="4" y="6" width="16" height="12" rx="1.5"></rect>
+        <path d="M4 10h16"></path>
+      </symbol>
+      <symbol id="account-icon-help" viewBox="0 0 24 24">
+        <path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"></path>
+        <path d="M7 15c1.4-.7 2.6-.6 3.5.3L12 17l1.5-1.7c.9-.9 2.1-1 3.5-.3"></path>
+      </symbol>
+      <symbol id="account-icon-chat" viewBox="0 0 24 24">
+        <path d="M5 6.5A4.5 4.5 0 0 1 9.5 2h5A4.5 4.5 0 0 1 19 6.5v4A4.5 4.5 0 0 1 14.5 15H10l-5 4v-12.5z"></path>
+        <path d="M9 7.5h6"></path>
+        <path d="M9 11h4"></path>
+      </symbol>
+      <symbol id="account-icon-log-out" viewBox="0 0 24 24">
+        <path d="M10 5H6v14h4"></path>
+        <path d="M13 12h8"></path>
+        <path d="m17 8 4 4-4 4"></path>
+      </symbol>
+    </svg>
     <div class="assistant-widget" aria-hidden="true"><span></span></div>
+    <aside class="public-promo" data-public-promo>
+      <div class="public-promo-inner">
+        <p><strong>Limited Time</strong><span aria-hidden="true">·</span> Annual plan special pricing ends August 31st. Lock in $49/mo and start getting cited.</p>
+        <a class="public-promo-cta" href="/signup" data-auth-trial data-auth-trial-plan="Pro">Start free trial</a>
+      </div>
+      <button class="public-promo-close" type="button" aria-label="Dismiss limited-time pricing notice" data-public-promo-close>×</button>
+    </aside>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Sir Bloggsalot home">
         <span class="brand-mark">S</span>
@@ -48,7 +144,7 @@
       </button>
       <nav id="primary-nav" aria-label="Primary navigation" data-primary-nav>
         <div class="nav-dropdown" data-nav-dropdown>
-          <a href="/#features" data-route="features">Features</a>
+          <a href="/#features">Features</a>
           <button class="nav-dropdown-toggle" type="button" aria-label="Open features menu" aria-expanded="false" data-nav-dropdown-toggle>
             <span class="nav-caret">⌄</span>
           </button>
@@ -59,15 +155,15 @@
             <a href="/#case-studies">Case studies</a>
           </div>
         </div>
-        <a href="/#pricing" data-route="pricing">Pricing</a>
-        <a href="/#faq" data-route="faq">FAQ</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
         <a href="/blog" data-route="blog">Blog</a>
       </nav>
       <div class="header-actions">
         <span class="auth-status" data-auth-status aria-live="polite"></span>
         <a class="login-link" href="/login" data-route="login" data-auth-login>Log in</a>
         <a class="button button-outline" href="/signup" data-route="signup" data-auth-signup>Sign up</a>
-        <a class="login-link" href="/account" data-route="account" data-auth-account hidden>Account</a>
+        <a class="login-link" href="/account?view=plan" data-route="account" data-auth-account hidden>Account</a>
         <button class="auth-logout" type="button" data-auth-logout hidden>Log out</button>
       </div>
     </header>
@@ -88,14 +184,14 @@
             you can preview before it publishes.
           </p>
           <div class="hero-actions">
-            <a class="button button-dark" href="/signup">Start free trial</a>
+            <a class="button button-dark" href="/signup" data-auth-trial>Start free trial</a>
             <p>3-day free trial, then <a href="#pricing">from $49/mo</a>. Preview every post before it publishes.</p>
           </div>
         </div>
         <div class="hero-card" aria-label="Article brief preview">
           <div class="ready-badge">Ready to draft</div>
           <div class="card-label">Article brief</div>
-          <h2>best dispensary in Denver</h2>
+          <h2>best web design agency in Orange County</h2>
           <div class="brief-grid">
             <span><small>Search intent</small>Local buying</span>
             <span><small>Article type</small>Local guide</span>
@@ -140,7 +236,7 @@
         </div>
         <div class="search-mock">
           <label for="keyword-sample">Find revenue keywords</label>
-          <div><input id="keyword-sample" value="best service company in my city" readonly /><button>Go</button></div>
+          <div><input id="keyword-sample" value="best service company in my city" readonly /><button type="button" disabled aria-label="Decorative keyword search">Go</button></div>
           <ul>
             <li><strong>High intent</strong><span>best provider near me</span></li>
             <li><strong>Comparison</strong><span>provider vs agency</span></li>
@@ -226,7 +322,7 @@
           <img src="/app-screenshots/dashboard.png" alt="Sir Bloggsalot dashboard for managing your SEO content calendar" />
           <div class="floating-search card-small">
             <label>What questions can we answer for you?</label>
-            <div><input value="AI tools for local services" readonly /><button></button></div>
+            <div><input value="AI tools for local services" readonly /><button type="button" disabled aria-label="Decorative search"></button></div>
           </div>
           <div class="content-tabs" aria-hidden="true">
             <span class="is-active">Drafts</span>
@@ -245,7 +341,7 @@
           <img src="/app-screenshots/gsc-traffic.png" alt="Sir Bloggsalot results dashboard showing search traffic" />
           <div class="floating-search card-small">
             <label>What questions can we answer for you?</label>
-            <div><input value="content that ranks in AI" readonly /><button></button></div>
+            <div><input value="content that ranks in AI" readonly /><button type="button" disabled aria-label="Decorative search"></button></div>
           </div>
         </div>
         <div class="feature-grid">
@@ -300,7 +396,7 @@
             <p>Get cited daily across AI search and Google.</p>
             <strong><span data-price data-monthly="$79" data-annual="$49">$49</span><span>/month</span></strong>
             <small data-price-note data-monthly="Billed monthly" data-annual="Billed annually at $588">Billed annually at $588</small>
-            <a class="button button-dark" href="/signup">Start free trial</a>
+            <a class="button button-dark" href="/signup" data-auth-trial data-auth-trial-plan="Pro">Start free trial</a>
             <ul>
               <li>31 chances per month to be the source AI quotes</li>
               <li>All platform integrations</li>
@@ -318,7 +414,7 @@
             <p>Outrank the sources your customers already see.</p>
             <strong><span data-price data-monthly="$99" data-annual="$69">$69</span><span>/month</span></strong>
             <small data-price-note data-monthly="Billed monthly" data-annual="Billed annually at $828">Billed annually at $828</small>
-            <a class="button button-light" href="/signup">Start free trial</a>
+            <a class="button button-light" href="/signup" data-auth-trial data-auth-trial-plan="Pro+">Start free trial</a>
             <ul>
               <li>Everything in Pro, plus:</li>
               <li>SEO Analysis Dashboard</li>
@@ -354,7 +450,7 @@
         <div>
           <h2>Your next customer is already asking AI.</h2>
           <p>Make sure your business is the answer. Start being cited today.</p>
-          <a class="button button-dark" href="/signup">Start free trial</a>
+          <a class="button button-dark" href="/signup" data-auth-trial>Start free trial</a>
         </div>
         <div class="cta-dashboard"><img src="/app-screenshots/keyword-finder.png" alt="Sir Bloggsalot keyword finder for profitable content ideas" /></div>
       </section>
@@ -390,22 +486,32 @@
 
       <section class="route-page" data-route-page="blog" hidden>
         <h1>Blog</h1>
-        <p>Route placeholder for the launch blog. Article index, category pages, RSS, and canonical URLs come next.</p>
+        <p>Practical notes on AI search, daily publishing, and building a blog that earns citations from search engines and answer tools.</p>
         <div class="route-grid">
-          <article><small>Search</small><h2>How answer engines choose sources</h2><p>Draft article placeholder.</p></article>
-          <article><small>Publishing</small><h2>Daily content without losing quality</h2><p>Draft article placeholder.</p></article>
-          <article><small>Routing</small><h2>Blog architecture for local businesses</h2><p>Draft article placeholder.</p></article>
+          <article><small>Search</small><h2>How answer engines choose sources</h2><p>AI tools tend to cite clear, indexed answers with specific business context, useful structure, and supporting internal links.</p></article>
+          <article><small>Publishing</small><h2>Daily content without losing quality</h2><p>A repeatable brief, review queue, CMS draft mode, and Search Console feedback loop keep volume from turning into generic output.</p></article>
+          <article><small>Routing</small><h2>Blog architecture for local businesses</h2><p>Service, location, comparison, and FAQ clusters give search engines multiple paths into the same business expertise.</p></article>
         </div>
       </section>
 
       <section class="route-page" data-route-page="features" hidden>
         <h1>Features</h1>
-        <p>Standalone route placeholder. The homepage anchor remains `/&#35;features` for launch-nav compatibility.</p>
+        <p>Sir Bloggsalot combines keyword discovery, account settings, content planning, draft generation, image prompts, CMS metadata, team access, and tracking into one daily publishing workflow.</p>
+        <div class="route-grid">
+          <article><small>Plan</small><h2>Content calendar</h2><p>Schedule, bulk plan, edit, generate, and publish article drafts from one workspace.</p></article>
+          <article><small>Settings</small><h2>Business-aware generation</h2><p>Products, locations, CTAs, image style, and CMS rules shape every draft.</p></article>
+          <article><small>Measure</small><h2>Search and AI tracking</h2><p>Local Search Console, ranking, and AI mention snapshots show where real integrations will feed reporting.</p></article>
+        </div>
       </section>
 
       <section class="route-page" data-route-page="pricing" hidden>
         <h1>Pricing</h1>
-        <p>Standalone route placeholder. The homepage anchor remains `/&#35;pricing` for launch-nav compatibility.</p>
+        <p>Choose Pro for daily publishing or Pro+ for opportunity scoring, ranking views, and AI mention monitoring. Annual plans use the best launch pricing.</p>
+        <div class="route-grid">
+          <article><small>Pro</small><h2>$49/mo annual</h2><p>Daily draft-first publishing, CMS metadata, images, Search Console, products, locations, and team access.</p></article>
+          <article><small>Pro+</small><h2>$69/mo annual</h2><p>Everything in Pro plus ranking snapshots, opportunity scoring, and AI mention monitoring.</p></article>
+          <article><small>Trial</small><h2>3 days free</h2><p>Use Google login to create the workspace, then connect plan and billing state from the account page.</p></article>
+        </div>
       </section>
 
       <section class="route-page" data-route-page="login" hidden>
@@ -419,53 +525,97 @@
 
       <section class="route-page" data-route-page="signup" hidden>
         <h1>Sign up</h1>
-        <p>Account creation now starts with Google sign-in. Plan selection and onboarding can attach to the authenticated account next.</p>
+        <p>Choose a launch plan, sign in with Google, and finish setup from your account billing and onboarding workspace.</p>
         <div class="route-grid">
-          <article><small>Step 1</small><h2>Sign in with Google</h2><p>Create the account session with a verified email address.</p></article>
-          <article><small>Step 2</small><h2>Pick a plan</h2><p>Connect billing and subscription rules to the account role.</p></article>
-          <article><small>Step 3</small><h2>Start drafting</h2><p>Attach blog settings, approval workflow, and publishing targets.</p></article>
+          <article><small>Pro</small><h2>$49/mo annual</h2><p>Daily draft-first publishing, CMS setup metadata, image prompts, Search Console snapshots, and team access.</p><a class="button button-dark" href="/login?next=%2Faccount%3Fview%3Dbilling%26checkoutPlan%3DPro%26billingPeriod%3Dannual">Start Pro trial</a></article>
+          <article><small>Pro+</small><h2>$69/mo annual</h2><p>Everything in Pro plus rankings, opportunity scoring, and AI mention monitoring.</p><a class="button button-dark" href="/login?next=%2Faccount%3Fview%3Dbilling%26checkoutPlan%3DPro%252B%26billingPeriod%3Dannual">Start Pro+ trial</a></article>
+          <article><small>Already signed in?</small><h2>Go to billing</h2><p>Authenticated users are sent directly to the account billing view to pick or change a plan.</p><a class="button button-outline" href="/account?view=billing">Open account</a></article>
+        </div>
+      </section>
+
+      <section class="route-page success-page" data-route-page="success" hidden>
+        <header class="success-topbar">
+          <a class="success-brand" href="/" aria-label="Sir Bloggsalot home"><span class="brand-mark">S</span><strong>sirbloggsalot</strong></a>
+          <div class="success-banner"><span aria-hidden="true">✓</span>Your free trial has started. You won't be charged for 3 days and you can cancel anytime</div>
+        </header>
+        <div class="success-panel" data-success-panel="complete">
+          <h1>You're all set</h1>
+          <p>Your account is ready. Your content plan is being built in the background, usually within 10 minutes. Refresh your calendar, or it'll be there next time you log in.</p>
+          <p class="success-note"><span aria-hidden="true">!</span>Your plan is still being built, usually within 10 minutes. Refresh your calendar, or it'll be there next time you log in.</p>
+          <a class="button button-dark success-cta" href="/account?view=plan" data-success-content-plan><svg class="success-cta-icon" aria-hidden="true"><use href="#account-icon-calendar"></use></svg>Open your content plan <span aria-hidden="true">→</span></a>
+          <p class="success-footnote">One last step on your dashboard: connect your website platform (about 2 minutes) so we can publish these for you automatically.</p>
+        </div>
+        <div class="success-panel success-preparing-panel" data-success-panel="preparing" hidden>
+          <h1>Your plan is being prepared</h1>
+          <p>We're turning everything you told us into a month of content, scheduled and ready to go.</p>
+          <div class="success-steps" aria-label="Content plan preparation">
+            <span class="is-active">Scoring your topics</span>
+            <span>Scheduling the next 6 weeks</span>
+            <span>Writing your titles</span>
+            <span>Putting your plan together</span>
+            <small>This usually takes under a minute <em>4s</em></small>
+          </div>
         </div>
       </section>
 
       <section class="route-page" data-route-page="account" hidden>
-        <div class="account-app">
+        <div class="account-app" data-account-busy-root aria-busy="false">
           <aside class="account-sidebar" aria-label="Account navigation">
-            <a class="account-brand" href="/account" aria-label="Sir Bloggsalot account home">
-              <span class="account-brand-mark">"</span>
+            <a class="account-brand" href="/account?view=plan" aria-label="Sir Bloggsalot account home">
+              <span class="account-brand-mark">S</span>
               <strong>sirbloggsalot</strong>
             </a>
-
-            <button class="account-site-switch" type="button">
-              <span class="account-site-icon" aria-hidden="true">S</span>
-              <span data-account-workspace>sirbloggsalot.com</span>
-              <span aria-hidden="true">⌄</span>
+            <button class="account-mobile-menu" type="button" data-account-nav-toggle aria-expanded="false">
+              <span>☰</span>
+              Menu
             </button>
 
-            <div class="account-nav-group">
-              <small>Create</small>
-              <button class="account-nav-item is-active" type="button" data-account-view="plan"><span>⌂</span>Content Plan</button>
-              <button class="account-nav-item" type="button" data-account-view="write"><span>✎</span>Write</button>
-              <button class="account-nav-item" type="button" data-account-view="topics"><span>⌕</span>Topics</button>
+            <button class="account-site-switch" type="button" data-account-action="workspace">
+              <span class="account-site-icon" data-account-workspace-icon aria-hidden="true">S</span>
+              <span data-account-workspace>sirbloggsalot.com</span>
+              <span class="account-switch-chevrons" aria-hidden="true"><span>⌃</span><span>⌄</span></span>
+            </button>
+
+            <div class="account-create-shell" hidden>
+              <button class="account-create-toggle" type="button" data-account-create-toggle aria-expanded="false">
+                <span aria-hidden="true">+</span>
+                Create
+                <span aria-hidden="true">⌄</span>
+              </button>
+              <div class="account-create-menu" data-account-create-menu hidden>
+                <button type="button" data-account-create-action="article">New article</button>
+                <button type="button" data-account-create-action="topic">Add topic</button>
+                <button type="button" data-account-create-action="product">Add product</button>
+                <button type="button" data-account-create-action="location">Add location</button>
+                <button type="button" data-account-create-action="ticket">Create ticket</button>
+              </div>
             </div>
 
             <div class="account-nav-group">
-              <small>Track</small>
-              <button class="account-nav-item" type="button" data-account-view="rankings"><span>↗</span>Rankings <em>Pro+</em></button>
-              <button class="account-nav-item" type="button" data-account-view="search"><span>☷</span>Search Console</button>
-              <button class="account-nav-item" type="button" data-account-view="mentions"><span>✦</span>AI Mentions <em>Pro+</em></button>
+              <small>CREATE</small>
+              <button class="account-nav-item is-active" type="button" data-account-view="plan"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-home"></use></svg>Content Plan</button>
+              <button class="account-nav-item" type="button" data-account-view="write"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-write"></use></svg>Write</button>
+              <button class="account-nav-item" type="button" data-account-view="topics"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-topics"></use></svg>Topics</button>
+              <small>TRACK</small>
+              <button class="account-nav-item" type="button" data-account-view="rankings"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-rankings"></use></svg>Rankings <em>Pro+</em></button>
+              <button class="account-nav-item" type="button" data-account-view="search"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-search-console"></use></svg>Search Console</button>
+              <button class="account-nav-item" type="button" data-account-view="mentions"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-mentions"></use></svg>AI Mentions <em>Pro+</em></button>
+              <button class="account-nav-item" type="button" data-account-view="settings"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-settings"></use></svg>Settings</button>
+              <button class="account-nav-item" type="button" data-account-view="pages" hidden><span>▦</span>Pages</button>
+              <button class="account-nav-item" type="button" data-account-view="getting-started" title="Guided walkthroughs of each section"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-help-circle"></use></svg>Getting started</button>
+              <button class="account-nav-item" type="button" data-account-view="reports" hidden><span>▤</span>Reports</button>
+              <button class="account-nav-item" type="button" data-account-view="seo-analysis" hidden><span>◇</span>SEO Analysis</button>
             </div>
 
             <div class="account-nav-group account-nav-lower">
-              <button class="account-nav-item" type="button" data-account-view="settings"><span>⚙</span>Settings</button>
-              <button class="account-nav-item" type="button" data-account-view="getting-started"><span>?</span>Getting started</button>
-              <button class="account-nav-item" type="button" data-account-view="billing"><span>▭</span>Billing</button>
-              <button class="account-nav-item" type="button" data-account-view="help"><span>♡</span>Help</button>
-              <button class="account-nav-item auth-logout" type="button" data-auth-logout><span>↪</span>Log out</button>
+              <button class="account-nav-item" type="button" data-account-view="billing"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-billing"></use></svg>Billing</button>
+              <button class="account-nav-item" type="button" data-account-view="help"><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-help"></use></svg>Help</button>
+              <button class="account-nav-item auth-logout" type="button" data-auth-logout><svg class="account-line-icon" aria-hidden="true"><use href="#account-icon-log-out"></use></svg>Log out</button>
             </div>
           </aside>
 
           <div class="account-main">
-            <header class="account-topbar">
+            <header class="account-topbar" hidden>
               <div class="account-profile">
                 <div class="account-avatar" aria-hidden="true">
                   <img data-account-avatar hidden />
@@ -477,82 +627,227 @@
                 </div>
               </div>
               <div class="account-status-row" aria-label="Account status">
-                <span data-account-role>Client</span>
+                <span data-account-role>Owner</span>
                 <span>Google verified</span>
-                <span data-account-updated>Session active</span>
+                <span data-account-updated>Session checked</span>
               </div>
             </header>
+            <p class="account-operation" data-account-operation aria-live="polite"></p>
+            <article class="account-tour-overlay" data-tour-overlay hidden aria-live="polite">
+              <button class="tour-close" type="button" aria-label="Close tour" data-account-action="tour-close">×</button>
+              <small data-tour-eyebrow hidden>Dashboard tour</small>
+              <h2 data-tour-title>Welcome to Sir Bloggsalot!</h2>
+              <p data-tour-body>Let's take a quick tour to help you get the most out of your AI-powered blog. This will only take about 2 minutes.</p>
+              <div class="tour-footer">
+                <div class="tour-progress-row">
+                  <span class="tour-dots" data-tour-dots aria-hidden="true"></span>
+                  <span data-tour-progress>1 of 11</span>
+                </div>
+                <div class="account-mini-actions">
+                  <button type="button" data-account-action="tour-back">Back</button>
+                  <button class="account-primary" type="button" data-account-action="tour-next">Next <span class="tour-next-icon" aria-hidden="true">&rsaquo;</span></button>
+                  <button class="account-primary" type="button" data-account-action="tour-finish" hidden>Finish</button>
+                </div>
+              </div>
+            </article>
 
             <section class="account-view is-active" data-account-panel="plan">
               <div class="account-view-head">
                 <div>
                   <h1>Content Plan</h1>
-                  <p>Publishing 3 articles a week, targeting keywords worth up to ~2,417 visits a month.</p>
+                  <p class="content-plan-stats" data-content-plan-stats>0 scheduled · 0 writing · 0 published</p>
+                  <p data-content-plan-headline>Publishing 3 articles a week, targeting keywords worth up to ~0 visits a month.</p>
                 </div>
                 <div class="account-toolbar">
-                  <button type="button">Strategy</button>
-                  <button class="is-active" type="button" aria-label="Grid view">▦</button>
-                  <button type="button" aria-label="List view">☷</button>
-                  <button type="button" aria-label="Refresh">↻</button>
+                  <button type="button" data-account-action="strategy"><span class="toolbar-sliders-icon" aria-hidden="true"></span>Strategy</button>
+                  <button class="account-primary" type="button" data-account-action="bulk-schedule" hidden>Bulk Schedule</button>
+                  <button type="button" data-blog-action="article-builder" hidden>Article Builder</button>
+                  <span class="content-tools-shell">
+                    <button type="button" data-content-tools-toggle aria-expanded="false"><span class="toolbar-more-icon" aria-hidden="true"></span></button>
+                    <span class="content-tools-menu" data-content-tools-menu hidden>
+                      <button type="button" data-content-tools-action="strategy">Strategy</button>
+                      <button type="button" data-content-tools-mode="list">List view</button>
+                      <button type="button" data-content-tools-mode="grid">Calendar view</button>
+                      <button type="button" data-content-tools-action="refresh">Refresh</button>
+                      <button type="button" data-content-tools-action="add-topic-to-plan">Add topics</button>
+                      <button type="button" data-content-tools-action="bulk-schedule">Bulk schedule</button>
+                    </span>
+                  </span>
+                  <button class="is-active" type="button" aria-label="Grid view" data-calendar-mode="grid"><span class="toolbar-grid-icon" aria-hidden="true"></span></button>
+                  <button type="button" aria-label="List view" data-calendar-mode="list"><span class="toolbar-list-icon" aria-hidden="true"></span></button>
+                  <button type="button" aria-label="Refresh" data-account-action="refresh"><span class="toolbar-refresh-icon" aria-hidden="true"></span></button>
                 </div>
               </div>
 
               <div class="account-calendar-tools">
-                <button type="button" aria-label="Previous week">‹</button>
-                <button type="button">Today</button>
-                <button type="button" aria-label="Next week">›</button>
-                <strong>Aug 2 - Aug 22</strong>
-                <button class="account-outline-action" type="button">+ Add topics</button>
+                <button type="button" aria-label="Previous week" data-calendar-shift="-1">‹</button>
+                <button type="button" data-calendar-shift="today">Today</button>
+                <button type="button" aria-label="Next week" data-calendar-shift="1">›</button>
+                <strong data-content-window>Aug 2 - Aug 22</strong>
+                <button class="account-outline-action" type="button" data-account-action="add-topic-to-plan">+ Add topics</button>
               </div>
 
-              <article class="account-info-card">
-                <button type="button" aria-label="Dismiss">×</button>
+              <div class="content-status-strip" aria-label="Content plan status" hidden>
+                <span><strong data-content-count="scheduled">0</strong> scheduled</span>
+                <span><strong data-content-count="draft">0</strong> generated</span>
+                <span><strong data-content-count="processing">0</strong> processing</span>
+                <span><strong data-content-count="published">0</strong> published</span>
+                <span><strong data-content-count="failed">0</strong> needs attention</span>
+                <span><strong data-content-count="paused">0</strong> paused</span>
+              </div>
+
+              <div class="blog-table-shell" aria-label="Articles table" data-blog-table-shell hidden>
+                <div class="filter-row blog-status-filters" aria-label="Article status filters">
+                  <button class="is-active" type="button" data-blog-status-filter="all" data-blog-status-label="All">All <span data-blog-status-count="all">0</span></button>
+                  <button type="button" data-blog-status-filter="scheduled" data-blog-status-label="Scheduled">Scheduled <span data-blog-status-count="scheduled">0</span></button>
+                  <button type="button" data-blog-status-filter="processing" data-blog-status-label="Processing">Processing <span data-blog-status-count="processing">0</span></button>
+                  <button type="button" data-blog-status-filter="draft" data-blog-status-label="Generated">Generated <span data-blog-status-count="draft">0</span></button>
+                  <button type="button" data-blog-status-filter="published" data-blog-status-label="Published">Published <span data-blog-status-count="published">0</span></button>
+                  <button type="button" data-blog-status-filter="failed" data-blog-status-label="Needs attention">Needs attention <span data-blog-status-count="failed">0</span></button>
+                  <button type="button" data-blog-status-filter="paused" data-blog-status-label="Paused">Paused <span data-blog-status-count="paused">0</span></button>
+                </div>
+                <div class="blog-bulk-bar" aria-label="Bulk article actions" hidden>
+                  <span data-blog-selected>0 selected</span>
+                  <select data-blog-bulk-status aria-label="Bulk article status"><option value="draft">Generated</option><option value="scheduled">Scheduled</option><option value="processing">Processing</option><option value="published">Published</option><option value="failed">Needs attention</option><option value="paused">Paused</option></select>
+                  <button type="button" data-blog-action="bulk-update">Apply status</button>
+                  <button type="button" data-blog-action="bulk-clear">Clear</button>
+                </div>
+                <div class="blog-table-wrap">
+                  <table class="blog-table">
+                    <thead>
+                      <tr>
+                        <th><input type="checkbox" aria-label="Select all articles" data-blog-select-all /></th>
+                        <th>Article Title</th>
+                        <th>Target Keyword</th>
+                        <th>Actions</th>
+                        <th>Scheduled Date</th>
+                      </tr>
+                    </thead>
+                    <tbody data-blog-table-body>
+                      <tr><td colspan="5">Loading articles...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <article class="account-info-card" data-strategy-card>
+                <button type="button" aria-label="Dismiss" data-account-action="dismiss-strategy">×</button>
                 <strong>Why this plan</strong>
-                <p>16 from your keyword research topics. Picked as topics your site can realistically rank for and spaced 3 per week. If these land where we are aiming, that is roughly 1,102 to 2,417 extra visits every month.</p>
+                <p data-content-strategy>16 from your keyword research topics. Picked as topics your site can realistically rank for and spaced 3 per week. If these land where we are aiming, that is roughly 1,102 to 2,417 extra visits every month.</p>
               </article>
 
-              <p class="account-muted">Articles write and publish themselves on their dates. New topics are added for you every week. You can jump ahead anytime.</p>
+              <p class="account-muted" data-content-plan-summary>Articles write and publish themselves on their dates. New topics are added for you every week. You can jump ahead anytime.</p>
 
-              <div class="content-calendar" aria-label="Content calendar">
+              <div class="content-calendar" aria-label="Content calendar" data-content-calendar>
                 <article>
                   <header><strong>Aug 2 - Aug 8</strong><span>This week</span></header>
-                  <div class="content-card"><strong>Canva Website Builder vs Other Options for Small Businesses</strong><small>canva website builder</small><p>8,100/mo · <b>Easy to rank</b><br />up to ~891 visits/mo</p><time>Aug 8</time></div>
-                  <div class="content-card"><strong>Best Local Web Design Agencies for Small Businesses</strong><small>local web design agency</small><p>720/mo · <b>Easy to rank</b><br />up to ~79 visits/mo</p><time>Aug 12</time></div>
+                  <div class="content-card"><strong>Canva Website Builder vs Other Options for Small Businesses</strong><small>canva website builder</small><p>8,100/mo · <b>Easy to rank</b><span class="content-card-visits">up to ~891 visits/mo</span></p><span class="content-card-footer"><time>Aug 8</time><span class="content-card-source" data-content-card-source>✧ Added by Sir Bloggsalot</span></span></div>
+                  <div class="content-card"><strong>Best Local Web Design Agencies for Small Businesses</strong><small>local web design agency</small><p>720/mo · <b>Easy to rank</b><span class="content-card-visits">up to ~79 visits/mo</span></p><span class="content-card-footer"><time>Aug 12</time><span class="content-card-source" data-content-card-source>✧ Added by Sir Bloggsalot</span></span></div>
                 </article>
                 <article>
                   <header><strong>Aug 9 - Aug 15</strong></header>
-                  <div class="content-card"><strong>Web Design for Small Business: Pricing Guide</strong><small>small business web design pricing</small><p>1,300/mo · <b>Easy to rank</b><br />up to ~143 visits/mo</p><time>Aug 10</time></div>
-                  <div class="content-card"><strong>Orange County Website Design Checklist</strong><small>orange county website design</small><p>900/mo · <b>Medium</b><br />up to ~99 visits/mo</p><time>Aug 14</time></div>
+                  <div class="content-card"><strong>Web Design for Small Business: Pricing Guide</strong><small>small business web design pricing</small><p>1,300/mo · <b>Easy to rank</b><span class="content-card-visits">up to ~143 visits/mo</span></p><span class="content-card-footer"><time>Aug 10</time><span class="content-card-source" data-content-card-source>✧ Added by Sir Bloggsalot</span></span></div>
+                  <div class="content-card"><strong>Orange County Website Design Checklist</strong><small>orange county website design</small><p>900/mo · <b>Medium</b><span class="content-card-visits">up to ~99 visits/mo</span></p><span class="content-card-footer"><time>Aug 14</time><span class="content-card-source" data-content-card-source>✧ Added by Sir Bloggsalot</span></span></div>
                 </article>
                 <article>
                   <header><strong>Aug 16 - Aug 22</strong></header>
-                  <div class="content-card"><strong>Business Marketing Guide for Choosing Help</strong><small>business marketing companies</small><p>1,000/mo · <b>Easy to rank</b><br />up to ~110 visits/mo</p><time>Aug 19</time></div>
-                  <div class="content-card"><strong>Search Engine Marketing Agency Questions</strong><small>sem agency near me</small><p>590/mo · <b>Medium</b><br />up to ~65 visits/mo</p><time>Aug 21</time></div>
+                  <div class="content-card"><strong>Business Marketing Guide for Choosing Help</strong><small>business marketing companies</small><p>1,000/mo · <b>Easy to rank</b><span class="content-card-visits">up to ~110 visits/mo</span></p><span class="content-card-footer"><time>Aug 19</time><span class="content-card-source" data-content-card-source>✧ Added by Sir Bloggsalot</span></span></div>
+                  <div class="content-card"><strong>Search Engine Marketing Agency Questions</strong><small>sem agency near me</small><p>590/mo · <b>Medium</b><span class="content-card-visits">up to ~65 visits/mo</span></p><span class="content-card-footer"><time>Aug 21</time><span class="content-card-source" data-content-card-source>✧ Added by Sir Bloggsalot</span></span></div>
                 </article>
               </div>
             </section>
 
             <section class="account-view" data-account-panel="write" hidden>
               <div class="account-view-head">
-                <div><h1>Write</h1><p>Craft one article yourself, step by step, for cornerstone content.</p></div>
-                <button class="account-primary" type="button">Start article</button>
+                <div><h1>Article Builder</h1><p>Draft, preview, and schedule a focused article from your saved site strategy.</p></div>
+                <div class="account-mini-actions"><button type="button" data-account-action="save-builder-draft">Save draft</button><button type="button" data-account-action="preview-article">Preview brief</button><button class="account-primary" type="button" data-account-action="start-article">Generate article</button></div>
+              </div>
+              <div class="article-builder-progress" data-write-progress aria-live="polite" aria-busy="false" hidden></div>
+              <div class="article-builder-status-grid" data-article-builder-status-grid>
+                <article><span>Readiness</span><strong data-article-builder-readiness-summary>0% ready</strong></article>
+                <article><span>Schedule</span><strong data-article-builder-schedule-summary>Unscheduled</strong></article>
+                <article><span>Public URL</span><strong data-article-builder-url-summary>Slug pending</strong></article>
+              </div>
+              <div class="article-builder-grid">
+                <article class="account-form-card"><label>Working title<input type="text" value="How local businesses can get cited by AI search" data-write-field="title" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Slug<input type="text" placeholder="how-local-businesses-get-cited" data-write-field="slug" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Target keyword<input type="text" value="AI SEO for local business" data-write-field="keyword" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Category<input type="text" placeholder="Guides" data-write-field="category" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Excerpt<textarea rows="3" placeholder="Short summary for article cards and social previews" data-write-field="excerpt" data-account-dirty></textarea></label></article>
+                <article class="account-form-card"><label>Author name<input type="text" placeholder="Editorial Team" data-write-field="authorName" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Scheduled date<input type="date" data-write-field="scheduledDate" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Scheduled time<input type="time" data-write-field="scheduledTime" data-account-dirty /></label></article>
               </div>
               <div class="account-card-row">
-                <article class="account-form-card"><label>Working title<input type="text" value="How local businesses can get cited by AI search" data-account-dirty /></label></article>
-                <article class="account-form-card"><label>Target keyword<input type="text" value="AI SEO for local business" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Template<select data-write-field="template" data-account-dirty><option value="how-to">How-to guide</option><option value="comparison">Comparison</option><option value="listicle">Listicle</option><option value="local">Local service article</option></select></label></article>
+                <article class="account-form-card"><label>Target audience<input type="text" value="Local small business owners" data-write-field="audience" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Target words<input type="number" min="500" max="4000" step="100" value="1200" data-write-field="wordCount" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Search volume<input type="number" min="0" step="1" data-write-field="volume" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Difficulty<input type="text" placeholder="Needs review" data-write-field="difficulty" data-account-dirty /></label></article>
+                <article class="account-form-card"><label>Estimated visits<input type="number" min="0" step="1" data-write-field="estimatedVisits" data-account-dirty /></label></article>
               </div>
-              <article class="account-form-card"><label>Brief<textarea rows="7" data-account-dirty>Use the business description, target audience, products, locations, CTA, and CMS settings to generate a draft-ready article brief.</textarea></label></article>
+              <div class="article-editor-shell" data-article-editor-shell>
+                <div class="article-editor-main">
+                  <article class="account-form-card"><label>Brief<textarea rows="7" data-write-field="brief" data-account-dirty>Use the business description, target audience, products, locations, CTA, and CMS settings to generate a draft-ready article brief.</textarea></label></article>
+                  <article class="account-form-card article-body-card"><label>Draft body<textarea rows="14" placeholder="Generated or pasted draft body" data-write-field="body" data-account-dirty></textarea></label></article>
+                  <article class="account-form-card"><label>Private notes<textarea rows="4" placeholder="Internal notes for the editor only" data-write-field="notes" data-account-dirty></textarea></label></article>
+                </div>
+                <aside class="article-editor-side" aria-label="Article metadata">
+                  <article class="account-form-card article-side-panel" data-article-seo-panel>
+                    <strong>SEO</strong>
+                    <label>SEO title<input type="text" data-write-field="seoTitle" data-account-dirty /></label>
+                    <label>Meta description<textarea rows="3" data-write-field="metaDescription" data-account-dirty></textarea></label>
+                    <label>Canonical URL<input type="url" placeholder="https://sirbloggsalot.com/blog/article-slug" data-write-field="canonicalUrl" data-account-dirty /></label>
+                    <label>Internal links<textarea rows="3" placeholder="Add URLs, comma or new line separated" data-write-field="internalLinks" data-account-dirty></textarea></label>
+                  </article>
+                  <article class="account-form-card article-side-panel" data-article-image-panel>
+                    <strong>Featured image</strong>
+                    <label>Featured image URL<input type="url" data-write-field="featuredImageUrl" data-account-dirty /></label>
+                    <label>Featured image alt<input type="text" data-write-field="featuredImageAlt" data-account-dirty /></label>
+                  </article>
+                </aside>
+              </div>
+              <article class="article-live-preview" data-article-preview>
+                <span data-article-preview-schedule>Unscheduled</span>
+                <h2 data-article-preview-title>Untitled article</h2>
+                <p data-article-preview-meta>No keyword set</p>
+                <p data-article-preview-readiness>Readiness pending</p>
+                <div data-article-preview-body>Draft body or brief preview will appear here.</div>
+              </article>
+              <div class="article-generated-actions account-mini-actions" data-article-generated-actions hidden></div>
+              <div class="article-builder-preview entity-list" data-write-preview></div>
+              <article class="settings-guidelines" data-write-status><strong>Draft status</strong><p>Save settings first, then start an article to create a content-plan draft from this brief.</p></article>
             </section>
 
             <section class="account-view" data-account-panel="topics" hidden>
               <div class="account-view-head">
-                <div><h1>Topics</h1><p>Pull search-volume ideas, add the winners, and let them land on the content plan automatically.</p></div>
-                <button class="account-primary" type="button">Find topics</button>
+                <div><h1>Keyword Finder</h1><p>Find high-value keywords with real search volume and competition data.</p></div>
+                <div class="account-mini-actions"><button type="button" data-account-action="search-keywords" hidden>Search</button><button type="button" data-account-action="magic-select-keywords">Magic Select</button><button type="button" data-account-action="export-keywords">Export</button><button class="account-primary" type="button" data-account-action="save-keywords">Save Keywords</button><button type="button" data-account-action="find-topics" hidden>Add topic</button></div>
               </div>
-              <div class="topic-list">
-                <article><strong>AI SEO for small business</strong><span>1,600/mo</span><button type="button">Add</button></article>
-                <article><strong>Local SEO content calendar</strong><span>880/mo</span><button type="button">Add</button></article>
-                <article><strong>Website copywriting for service businesses</strong><span>720/mo</span><button type="button">Add</button></article>
+              <div class="content-status-strip" aria-label="Keyword finder summary">
+                <span><strong data-keyword-total>0</strong> keywords found</span>
+              </div>
+              <div class="blog-table-shell">
+                <div class="keyword-filter-head" data-keyword-filter-head><strong>Filters</strong><button type="button" data-topic-select-all>Select All</button></div>
+                <div class="keyword-filter-grid" aria-label="Keyword metric filters">
+                  <fieldset class="keyword-filter-group"><legend>DIFFICULTY (KD) <span aria-hidden="true">i</span></legend><label><span class="sr-only">Difficulty minimum</span><input type="number" min="0" max="100" placeholder="Min" data-topic-filter="difficultyMin" /></label><label><span class="sr-only">Difficulty maximum</span><input type="number" min="0" max="100" placeholder="Max" data-topic-filter="difficultyMax" /></label></fieldset>
+                  <fieldset class="keyword-filter-group"><legend>CPC ($) <span aria-hidden="true">i</span></legend><label><span class="sr-only">CPC minimum</span><input type="number" min="0" step="0.01" placeholder="Min" data-topic-filter="cpcMin" /></label><label><span class="sr-only">CPC maximum</span><input type="number" min="0" step="0.01" placeholder="Max" data-topic-filter="cpcMax" /></label></fieldset>
+                  <fieldset class="keyword-filter-group"><legend>VOLUME <span aria-hidden="true">i</span></legend><label><span class="sr-only">Volume minimum</span><input type="number" min="0" placeholder="Min" data-topic-filter="volumeMin" /></label><label><span class="sr-only">Volume maximum</span><input type="number" min="0" placeholder="Max" data-topic-filter="volumeMax" /></label></fieldset>
+                  <fieldset class="keyword-filter-group"><legend>COMPETITION <span aria-hidden="true">i</span></legend><label><span class="sr-only">Competition minimum</span><input type="number" min="0" max="1" step="0.01" placeholder="Min" data-topic-filter="competitionMin" /></label><label><span class="sr-only">Competition maximum</span><input type="number" min="0" max="1" step="0.01" placeholder="Max" data-topic-filter="competitionMax" /></label></fieldset>
+                </div>
+                <div class="keyword-filter-foot"><span data-keyword-filtered>0 of 0 keywords</span><span data-keyword-selected>0 selected</span></div>
+                <div class="keyword-progress" data-keyword-progress aria-live="polite" aria-busy="false" hidden></div>
+                <p class="keyword-tip" data-keyword-tip><span aria-hidden="true">i</span>Tip: Saved keywords appear in your site settings and guide what content Sir Bloggsalot creates for you.</p>
+                <div class="blog-table-wrap">
+                  <table class="blog-table keyword-table">
+                    <thead>
+                      <tr><th><input type="checkbox" aria-label="Select all visible keywords" data-topic-select-all /></th><th><button type="button" data-topic-sort="keyword">Keyword ↕</button></th><th><button type="button" data-topic-sort="volume">Volume ↕</button></th><th><button type="button" data-topic-sort="cpc">CPC ↕</button></th><th><button type="button" data-topic-sort="difficultyScore">Difficulty ↕</button></th><th><button type="button" data-topic-sort="competition">Competition ↕</button></th><th data-topic-actions-column hidden>Actions</th></tr>
+                    </thead>
+                    <tbody data-topic-list>
+                      <tr><td colspan="7">Loading keywords...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </section>
 
@@ -570,77 +865,241 @@
 
               <div class="settings-panel is-active" data-settings-panel="site">
                 <div class="settings-field">
-                  <label>Product Description</label>
-                  <button type="button">✦ Generate using AI</button>
-                  <textarea rows="5" data-account-dirty>Sir Bloggsalot publishes brand-aware articles that help companies get found across search, answer engines, and their own blog. It uses services, locations, tone, products, and internal links to produce draft-first SEO content.</textarea>
+                  <div class="settings-field-head"><label>Product Description</label><div class="settings-field-actions"><button type="button" data-account-action="generate-description"><svg class="account-action-icon" aria-hidden="true"><use href="#account-icon-sparkles"></use></svg>Generate using AI</button><span class="settings-action-progress" data-description-progress aria-live="polite" aria-busy="false" hidden></span></div></div>
+                  <textarea rows="5" data-settings-field="site.productDescription" data-account-dirty>Sir Bloggsalot publishes brand-aware articles that help companies get found across search, answer engines, and their own blog. It uses services, locations, tone, products, and internal links to produce draft-first SEO content.</textarea>
                 </div>
-                <label class="settings-field">Target Audience (optional)<textarea rows="3" data-account-dirty>Local small business owners, ecommerce entrepreneurs, real estate agents, local restaurants and cafes, and service businesses that need consistent search visibility.</textarea></label>
-                <label class="settings-field">Your keywords<textarea rows="2" placeholder="Add keywords (comma or new line separated)" data-account-dirty></textarea><button class="account-primary inline" type="button">Add</button></label>
-                <div class="settings-field"><label>Keyword mix</label><input type="range" min="0" max="100" value="45" data-account-dirty /></div>
+                <label class="settings-field">Target Audience (optional)<p>Who your articles should speak to. Sir Bloggsalot uses this to guide topics, titles, and writing when it is filled in.</p><textarea rows="3" data-settings-field="site.targetAudience" data-account-dirty>Local small business owners, ecommerce entrepreneurs, real estate agents, local restaurants and cafes, and service businesses that need consistent search visibility.</textarea></label>
+                <label class="settings-field">Your keywords<p>Your own keywords. Sir Bloggsalot turns these into articles at the rate the mix below sets. At 0, it writes from your discovered topics only. Use terms your audience actually searches for. Here's a guide on how to find good keywords.</p><div class="settings-keyword-row"><textarea rows="2" placeholder="Add keywords (comma or new line separated)" data-settings-field="site.keywordDraft" data-account-dirty></textarea><button class="account-primary keyword-add-button" type="button" data-account-action="add-keywords">Add</button></div></label>
+                <div class="keyword-chips" data-keyword-list></div>
+                <div class="settings-field"><label>Keyword mix <span data-keyword-mix-label>45%</span></label><p>Choose how much of each week comes from your keywords versus the topics Sir Bloggsalot discovers.</p><input type="range" min="0" max="100" value="45" data-settings-field="site.keywordMix" data-account-dirty /></div>
+                <label class="settings-field">Brand voice<textarea rows="3" placeholder="Direct, expert, plain-spoken..." data-settings-field="site.brandVoice" data-account-dirty></textarea></label>
+                <label class="settings-field">Competitors<textarea rows="2" placeholder="Add competitors or alternatives to avoid or compare against" data-settings-field="site.competitors" data-account-dirty></textarea></label>
+                <div class="account-card-row">
+                  <article class="account-form-card"><label>Language<select data-settings-field="site.language" data-account-dirty><option>English</option><option>Spanish</option><option>French</option><option>German</option><option>Portuguese</option></select></label></article>
+                  <article class="account-form-card"><label>Publishing cadence<select data-settings-field="site.publishingCadence" data-account-dirty><option>Daily</option><option>3 per week</option><option>Weekly</option><option>Manual approval only</option></select></label></article>
+                  <article class="account-form-card"><label>Timezone<select data-settings-field="site.timezone" data-account-dirty><option value="America/Los_Angeles">Pacific</option><option value="America/Denver">Mountain</option><option value="America/Chicago">Central</option><option value="America/New_York">Eastern</option><option value="UTC">UTC</option></select></label></article>
+                  <article class="account-form-card"><label>Default publish time<input type="time" value="09:00" data-settings-field="site.defaultPublishTime" data-account-dirty /></label></article>
+                </div>
               </div>
 
               <div class="settings-panel" data-settings-panel="products" hidden>
                 <article class="integration-card">
-                  <div><span class="integration-icon">▣</span><strong>Dutchie POS</strong><p>Connect your dispensary POS to pull your live menu into content.</p></div>
-                  <button type="button">+ Connect</button>
+                  <div><span class="integration-icon"><svg aria-hidden="true"><use href="#account-icon-store"></use></svg></span><strong>Inventory Feed</strong><p data-inventory-status>Connect product or service inventory to pull current offers into content.</p></div>
+                  <div class="account-mini-actions"><button type="button" data-account-action="connect-inventory">+ Connect</button><button type="button" data-account-action="sync-inventory">Sync</button><button type="button" data-account-action="disconnect-inventory">Disconnect</button></div>
                 </article>
-                <button class="account-primary right" type="button">+ Add Product</button>
-                <div class="filter-row"><button class="is-active" type="button">All</button><button type="button">Synced</button><button type="button">Manual</button><button type="button">Hidden</button><input type="search" placeholder="Search products..." /></div>
-                <div class="empty-state"><span>▱</span><strong>No products yet</strong><p>Add your first product</p></div>
+                <div class="settings-panel-progress" data-inventory-progress aria-live="polite" aria-busy="false" hidden></div>
+                <div class="entity-list" data-inventory-details></div>
+                <div data-products-manual-controls hidden>
+                  <button class="account-primary right" type="button" data-account-action="add-product">+ Add Product</button>
+                  <div class="filter-row"><button class="is-active" type="button" data-product-filter="all">All</button><button type="button" data-product-filter="synced">Synced</button><button type="button" data-product-filter="manual">Manual</button><button type="button" data-product-filter="hidden">Hidden</button><input type="search" placeholder="Search products..." data-product-search /></div>
+                  <div class="entity-list" data-products-list></div>
+                </div>
               </div>
 
               <div class="settings-panel" data-settings-panel="images" hidden>
-                <article class="settings-toggle-card"><div><strong>Include Images in Articles</strong><p>Automatically generate and include relevant images throughout your blog articles.</p></div><button class="toggle is-on" type="button" data-toggle-button aria-pressed="true"></button></article>
-                <article class="settings-toggle-card"><div><strong>Use product images for featured image</strong><p>When products are linked to an article, use their image as the featured image.</p></div><button class="toggle" type="button" data-toggle-button aria-pressed="false"></button></article>
-                <label class="settings-field">Visual Style<textarea rows="4" placeholder="e.g. professional photography, minimalist, vibrant colors, soft lighting..." data-account-dirty></textarea></label>
-                <article class="settings-guidelines"><strong>Image Guidelines</strong><p>Create specific, meaningful visuals. Text and numbers are allowed when they explain content. Avoid generic icons, notification badges, random numbers, irrelevant text, and fake device scenes.</p></article>
+                <article class="image-test-generation-card">
+                  <div><strong>Test Image Generation</strong><p>Preview how your style and guidelines affect generated images</p></div>
+                  <span aria-hidden="true">⌄</span>
+                </article>
+                <div class="image-settings-visible-shell">
+                  <div class="image-settings-title">
+                    <h2>In-Article Images</h2>
+                    <p>Configure the style and guidelines for images generated throughout your articles</p>
+                  </div>
+                  <article class="image-settings-card">
+                    <strong>In-Article Image Style</strong>
+                    <p>Define the artistic style for images within your articles</p>
+                    <label class="image-check-row"><input type="checkbox" checked /> <span>Reuse style from featured image</span></label>
+                  </article>
+                  <article class="image-settings-card image-guidelines-card">
+                    <strong>In-Article Image Guidelines</strong>
+                    <p>Set constraints for images generated within your article content</p>
+                    <label class="image-radio-row"><input type="radio" checked /> <span>Use Sir Bloggsalot's default guidelines (recommended)</span></label>
+                    <div class="image-guidelines-box">
+                      <strong>CRITICAL GUIDELINES:</strong>
+                      <p>• Create specific, detailed descriptions that would generate meaningful, relevant images<br>• Text and numbers are ALLOWED if they directly help explain the content (e.g., "95% satisfaction rate", "3-step process")<br>• Use US/English number formatting: use dots (.) for decimals, not commas<br>• NO generic icons, emojis, or standard symbols (phone, chat bubble, envelope, computer, smartphone, etc.)<br>• NO notification badges, random numbers, or irrelevant text elements<br>• NO timeline-style generic visuals with universal symbols<br>• NO humans, characters, or faces in the image AT ALL</p>
+                    </div>
+                  </article>
+                </div>
+                <div class="image-style-settings-shell">
+                  <article class="settings-toggle-card"><div><strong>Include Images in Articles</strong><p>Automatically generate and include relevant images throughout your blog articles.</p></div><button class="toggle is-on" type="button" data-toggle-button data-settings-toggle="images.includeImages" aria-pressed="true"></button></article>
+                  <article class="image-settings-card product-image-settings-card">
+                    <strong>Product Images</strong>
+                    <p>Use your synced product images instead of AI-generated images</p>
+                    <div class="image-toggle-detail-row"><div><strong>Use product images for featured image</strong><p>When products are linked to an article, use their image as the featured image</p></div><button class="toggle" type="button" data-toggle-button data-settings-toggle="images.useProductImages" aria-pressed="false" disabled></button></div>
+                    <p>In-article images automatically use product photos when mentioned, AI images otherwise.</p>
+                  </article>
+                  <article class="settings-field image-visual-style-field">
+                    <div class="image-style-field-head">
+                      <div><strong>Visual Style</strong><p>Define the artistic style for generated images (e.g., realistic, cartoon, 3D)</p></div>
+                      <div class="image-style-tool-actions"><button type="button" aria-label="Reset visual style" title="Reset visual style" data-account-action="reset-image-visual-style"><span aria-hidden="true">&#8634;</span></button><button type="button" aria-label="Suggest visual style" title="Suggest visual style" data-account-action="suggest-image-visual-style"><span aria-hidden="true">&#8635;</span></button></div>
+                    </div>
+                    <textarea rows="4" placeholder="e.g. professional photography, minimalist, vibrant colors, soft lighting..." data-settings-field="images.visualStyle" data-account-dirty></textarea>
+                  </article>
+                  <article class="settings-field image-guidelines-field">
+                    <div class="image-toggle-detail-row"><div><strong>Image Guidelines</strong><p>Add specific constraints for what should or shouldn't appear in generated images</p></div><button class="toggle" type="button" data-toggle-button data-settings-toggle="images.useCustomGuidelines" aria-pressed="false"></button></div>
+                    <label class="image-guidelines-editor" data-image-guidelines-editor hidden><span>Use custom guidelines</span><textarea rows="4" placeholder="Avoid stock-photo cliches, fake UI, unreadable text..." data-settings-field="images.guidelines" data-account-dirty></textarea></label>
+                  </article>
+                </div>
+                <div class="image-style-action-compat" hidden>
+                  <label class="settings-field">Style preset<select data-settings-field="images.stylePreset" data-account-dirty><option value="editorial">Editorial</option><option value="product">Product focused</option><option value="local">Local business</option><option value="technical">Technical explainer</option></select></label>
+                  <label class="settings-field">Aspect ratio<select data-settings-field="images.aspectRatio" data-account-dirty><option value="16:9">16:9 wide</option><option value="4:3">4:3 standard</option><option value="1:1">1:1 square</option><option value="3:4">3:4 portrait</option></select></label>
+                  <label class="settings-field">Image cadence<select data-settings-field="images.imageCadence" data-account-dirty><option value="featured-only">Featured image only</option><option value="key-sections">Key sections</option><option value="every-section">Every section</option><option value="none">No generated images</option></select></label>
+                  <article class="settings-guidelines"><strong>Image Guidelines</strong><p>Create specific, meaningful visuals. Text and numbers are allowed when they explain content. Avoid generic icons, notification badges, random numbers, irrelevant text, and fake device scenes.</p><div class="account-mini-actions"><button type="button" data-account-action="test-image-settings">Test image prompt</button><button type="button" data-account-action="clear-image-tests">Clear history</button></div></article>
+                  <div class="settings-panel-progress" data-image-progress aria-live="polite" aria-busy="false" hidden></div>
+                  <div class="entity-list" data-image-details data-image-history></div>
+                </div>
               </div>
 
               <div class="settings-panel" data-settings-panel="cms" hidden>
-                <label class="settings-field">Website URL<input type="url" value="sirbloggsalot.com" data-account-dirty /></label>
-                <label class="settings-field">Website Platform<select data-account-dirty><option>Select your website platform</option><option>WordPress</option><option>Webflow</option><option>Shopify</option><option>Wix</option><option>Ghost</option><option>Custom API</option></select></label>
-                <article class="settings-guidelines"><strong>Connect Your Blog Platform</strong><p>Connect WordPress, Webflow, Shopify, or another CMS to auto-publish approved articles directly to your blog. Draft-first mode stays on until publishing is confirmed.</p></article>
+                <div class="cms-connect-fields">
+                  <label class="settings-field">Website URL<input type="url" value="https://sirbloggsalot.com" data-settings-field="cms.websiteUrl" data-account-dirty /></label>
+                  <label class="settings-field">Website Platform<select data-settings-field="cms.platform" data-account-dirty><option value="">Select your website platform</option><option>WordPress</option><option>Webflow</option><option>Shopify</option><option>Wix</option><option>Ghost</option><option>Custom API</option></select></label>
+                </div>
+                <div class="cms-provider-compat" hidden>
+                  <article class="settings-guidelines"><strong>Connect Your Blog Platform</strong><p data-cms-status>Connect WordPress, Webflow, Shopify, or another CMS to auto-publish approved articles directly to your blog. Draft-first mode stays on until publishing is confirmed.</p><div class="account-mini-actions"><button class="account-primary" type="button" data-account-action="connect-cms">Connect CMS</button><button type="button" data-account-action="test-cms">Test setup</button><button type="button" data-account-action="disconnect-cms">Disconnect</button></div></article>
+                  <div class="settings-panel-progress" data-cms-progress aria-live="polite" aria-busy="false" hidden></div>
+                  <div class="entity-list" data-cms-details></div>
+                </div>
               </div>
 
               <div class="settings-panel" data-settings-panel="locations" hidden>
-                <h2>Business Locations</h2>
-                <p class="account-muted">Generated pages and articles use these as real-world facts for addresses, phone numbers, and service areas.</p>
-                <div class="empty-state bordered"><span>♙</span><strong>No locations yet</strong><p>Add your first business location so generated articles use accurate details.</p><button class="account-primary" type="button">+ Add a location</button></div>
+                <div class="locations-panel-head">
+                  <h2>Business locations</h2>
+                  <p class="account-muted">The Pages generator and Write use these as real-world facts. On the Pages tab you pick which location a batch of pages targets. Articles include all of them so the model has accurate addresses, phone numbers, and service areas to draw on.</p>
+                </div>
+                <div class="locations-empty-card">
+                  <div class="entity-list" data-locations-list>
+                    <div class="empty-state locations-empty-state"><span class="locations-empty-icon" aria-hidden="true"><svg><use href="#account-icon-shield-check"></use></svg></span><strong>No locations yet</strong><p>Add your first business location so generated pages and articles use accurate details.</p></div>
+                  </div>
+                  <button class="locations-empty-action account-primary" type="button" data-account-action="add-location">+ Add a location</button>
+                </div>
               </div>
 
               <div class="settings-panel" data-settings-panel="cta" hidden>
-                <article class="settings-toggle-card"><div><strong>Call to Action</strong><p>Add a visible CTA to generated articles.</p></div><button class="toggle" type="button" data-toggle-button aria-pressed="false"></button></article>
-                <article class="settings-guidelines"><strong>CTA Best Practices</strong><p>Use action-oriented language, keep the message clear, make the CTA visually distinct, and test different positions.</p></article>
-                <label class="settings-field">CTA text<input type="text" placeholder="Get started" data-account-dirty /></label>
+                <div class="cta-settings-head">
+                  <div><button class="toggle" type="button" data-toggle-button data-settings-toggle="cta.enabled" aria-pressed="false"></button><h2>Call to Action</h2></div>
+                  <button class="cta-edit-action" type="button" data-account-action="edit-cta">Edit CTA</button>
+                </div>
+                <article class="settings-guidelines cta-best-practices"><strong>💡 CTA Best Practices</strong><p>· Use action-oriented language ("Get Started", "Download Now", "Learn More")<br>· Keep your message clear and concise<br>· Make sure the CTA stands out visually from your content<br>· Test different positions to see what works best for your audience</p></article>
+                <div class="cta-field-compat" hidden>
+                  <label class="settings-field">CTA label<input type="text" placeholder="Free consultation" data-settings-field="cta.label" data-account-dirty /></label>
+                  <label class="settings-field">CTA text<input type="text" placeholder="Get started" data-settings-field="cta.text" data-account-dirty /></label>
+                  <label class="settings-field">CTA URL<input type="url" placeholder="https://example.com/contact" data-settings-field="cta.url" data-account-dirty /></label>
+                  <label class="settings-field">CTA placement<select data-settings-field="cta.placement" data-account-dirty><option value="end">End of article</option><option value="start">Start of article</option><option value="inline">After intro</option><option value="sidebar">Sidebar card</option></select></label>
+                  <label class="settings-field">CTA style<select data-settings-field="cta.style" data-account-dirty><option value="button">Button</option><option value="banner">Banner</option><option value="text-link">Text link</option></select></label>
+                  <label class="settings-field">Open behavior<select data-settings-field="cta.openInNewTab" data-account-dirty><option value="true">Open in new tab</option><option value="false">Same tab</option></select></label>
+                  <label class="settings-field">Tracking label<input type="text" placeholder="pricing_cta" data-settings-field="cta.trackingLabel" data-account-dirty /></label>
+                  <div class="entity-list" data-cta-preview></div>
+                  <button type="button" data-account-action="reset-cta">Reset CTA</button>
+                </div>
               </div>
 
               <div class="settings-panel" data-settings-panel="invite" hidden>
-                <label class="settings-field">Email Address<input type="email" placeholder="colleague@example.com" data-account-dirty /></label>
-                <button class="account-primary" type="button">Generate Invite Link</button>
-                <h2>Current Team Members</h2>
+                <div class="invite-user-row">
+                  <label class="settings-field">Email Address<input type="email" placeholder="colleague@example.com" data-invite-email /></label>
+                  <button class="account-primary" type="button" data-account-action="generate-invite" disabled>Generate Invite Link</button>
+                </div>
+                <p class="account-muted invite-helper">We'll generate an invite link for the email, but you need to send it manually.</p>
+                <label class="settings-field" hidden>Role<select data-invite-role hidden><option value="member">Member</option><option value="editor">Editor</option><option value="admin">Admin</option></select></label>
+                <div class="invite-section-divider" aria-hidden="true"></div><h2>Current Team Members</h2>
                 <div class="team-row"><span data-account-team-initial>S</span><div><strong data-account-team-email>Checking session...</strong><p>Owner</p></div></div>
-                <article class="settings-guidelines"><strong>How to use invitation links</strong><p>Share generated links with team members manually. Links are valid for 7 days and can only be used once.</p></article>
+                <div class="entity-list" data-members-list></div>
+                <div class="entity-list" data-invites-list></div>
+                <div data-team-activity-section hidden>
+                  <h2>Team Activity</h2>
+                  <div class="entity-list" data-team-activity-list></div>
+                </div>
+                <article class="settings-guidelines invite-guidelines"><span class="guidelines-info-icon" aria-hidden="true">i</span><div><strong>How to use invitation links</strong><p>Share these invitation links with your team members. When they click the link, they'll be able to create an account and access your site. Links are valid for 7 days and can only be used once.</p></div></article>
+              </div>
+            </section>
+
+            <section class="account-view" data-account-panel="pages" hidden>
+              <div class="account-view-head">
+                <div>
+                  <h1>Pages</h1>
+                  <p>Generate location pages from your saved business locations.</p>
+                </div>
+                <div class="account-mini-actions">
+                  <span data-pages-generator-count>0 local page targets</span>
+                  <button type="button" data-page-generator-action="open-location" data-page-generator-location="" hidden>Location</button>
+                  <button type="button" data-page-generator-action="open-builder" data-page-generator-location="">Open Article Builder</button>
+                </div>
+              </div>
+              <article class="settings-guidelines pages-generator-intro">
+                <strong>Pages generator</strong>
+                <p>Pick which location a batch of pages targets. Sir Bloggsalot uses your saved locations, keywords, products, and CTA settings to draft service-area pages locally until provider publishing is connected.</p>
+              </article>
+              <div class="entity-list pages-generator-list" data-pages-generator-list>
+                <div class="empty-state bordered"><span>▦</span><strong>No page targets yet</strong><p>Add a business location to choose which location a batch of pages targets.</p></div>
               </div>
             </section>
 
             <section class="account-view" data-account-panel="rankings" hidden>
-              <div class="account-view-head"><div><h1>Rankings</h1><p>Track keyword movement once Search Console is connected.</p></div><span class="pro-pill">Pro+</span></div>
-              <div class="empty-state bordered"><span>↗</span><strong>No ranking data yet</strong><p>Connect Search Console to start tracking.</p></div>
+              <div class="account-view-head"><div><h1>Rankings</h1><p>Track keyword movement once Search Console is connected.</p></div><div class="account-mini-actions"><span class="pro-pill">Pro+</span><select data-rankings-range aria-label="Rankings date range"><option value="30">Last 30 days</option><option value="90">Last 90 days</option></select><button type="button" data-account-action="refresh-rankings">Refresh</button><button type="button" data-account-action="export-rankings">Export CSV</button></div></div>
+              <div class="content-status-strip" data-rankings-summary></div>
+              <div class="tracking-progress" data-rankings-progress aria-live="polite" aria-busy="false" hidden></div>
+              <article class="search-chart-card"><div><strong>Ranking Trend</strong><span>Average position</span></div><div class="search-chart" data-rankings-chart></div></article>
+              <div class="filter-row"><button class="is-active" type="button" data-rankings-filter="all">All</button><button type="button" data-rankings-filter="improved">Improved</button><button type="button" data-rankings-filter="declined">Declined</button><input type="search" placeholder="Search rankings..." data-rankings-search /></div>
+              <div class="entity-list" data-rankings-list></div>
             </section>
 
             <section class="account-view" data-account-panel="search" hidden>
-              <div class="account-view-head"><div><h1>Search Console</h1><p>Connect Google Search Console to measure impressions, clicks, and indexed content.</p></div><button class="account-primary" type="button">Connect</button></div>
-              <div class="account-card-row"><article class="metric-card"><strong>0</strong><span>Clicks</span></article><article class="metric-card"><strong>0</strong><span>Impressions</span></article><article class="metric-card"><strong>0</strong><span>Indexed pages</span></article></div>
+              <div class="account-view-head"><div><h1>Google Search Console</h1><p data-search-status>Connect Google Search Console to measure impressions, clicks, and indexed content.</p></div><div class="account-mini-actions"><select data-search-range aria-label="Search Console date range"><option value="7">Last 7 days</option><option value="28" selected>Last 28 days</option><option value="90">Last 90 days</option></select><button class="account-primary" type="button" data-account-action="connect-search-console">Connect</button><button type="button" data-account-action="sync-search-console" hidden>Sync</button><button type="button" data-account-action="export-search-console" hidden>Export CSV</button><button class="account-icon-action" type="button" aria-label="Disconnect Search Console" title="Disconnect Search Console" data-account-action="disconnect-search-console" hidden>⊘</button></div></div>
+              <div class="tracking-progress" data-search-progress aria-live="polite" aria-busy="false" hidden></div>
+              <div class="account-card-row" data-search-metrics hidden><article class="metric-card"><strong data-search-clicks>0</strong><span>Clicks</span></article><article class="metric-card"><strong data-search-impressions>0</strong><span>Impressions</span></article><article class="metric-card"><strong data-search-indexed>0</strong><span>Indexed pages</span></article></div>
+              <article class="search-chart-card"><div><strong>Traffic Overview</strong><div class="search-chart-legend" data-search-chart-legend><span data-series="clicks">Clicks</span><span data-series="impressions">Impressions</span></div></div><div class="search-chart" data-search-chart></div></article>
+              <div class="filter-row"><button class="is-active" type="button" data-search-view="queries">Top queries</button><button type="button" data-search-view="pages">Top pages</button><input type="search" placeholder="Search Search Console rows..." data-search-filter /></div>
+              <div class="search-dual-grid">
+                <article class="search-list-card">
+                  <div class="search-list-head"><h2>Top Performing Posts</h2><select data-search-row-limit="pages" aria-label="Top performing posts rows"><option value="10">10 rows</option><option value="25">25 rows</option><option value="50">50 rows</option></select><span data-search-pages-count>0 rows</span></div>
+                  <div class="search-table-header" data-search-pages-header><span>Page</span><span>Clicks</span><span>Impressions</span></div>
+                  <div class="entity-list" data-search-pages-list></div>
+                </article>
+                <article class="search-list-card">
+                  <div class="search-list-head"><h2>Top Search Queries</h2><select data-search-row-limit="queries" aria-label="Top search queries rows"><option value="10">10 rows</option><option value="25">25 rows</option><option value="50">50 rows</option></select><span data-search-queries-count>0 rows</span></div>
+                  <div class="search-table-header" data-search-queries-header><span>Query</span><span>Clicks</span><span>Impressions</span></div>
+                  <div class="entity-list" data-search-queries-list></div>
+                </article>
+              </div>
+              <h2 class="section-title" data-search-list-title hidden>Top Search Queries</h2>
+              <div class="entity-list" data-search-details hidden></div>
             </section>
 
             <section class="account-view" data-account-panel="mentions" hidden>
-              <div class="account-view-head"><div><h1>AI Mentions</h1><p>Monitor where AI assistants mention your business after content is indexed.</p></div><span class="pro-pill">Pro+</span></div>
-              <div class="empty-state bordered"><span>✦</span><strong>No AI mentions yet</strong><p>Mentions appear after tracking is enabled.</p></div>
+              <div class="account-view-head"><div><h1>AI Mentions</h1><p>Monitor where AI assistants mention your business after content is indexed.</p></div><div class="account-mini-actions"><span class="pro-pill">Pro+</span><select data-mentions-range aria-label="AI Mentions date range"><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select><button type="button" data-account-action="refresh-ai-mentions">Refresh</button><button type="button" data-account-action="export-ai-mentions">Export CSV</button></div></div>
+              <div class="content-status-strip" data-mentions-summary></div>
+              <div class="tracking-progress" data-mentions-progress aria-live="polite" aria-busy="false" hidden></div>
+              <article class="search-chart-card"><div><strong>AI Mention Trend</strong><span>Local mention count</span></div><div class="search-chart" data-mentions-chart></div></article>
+              <div class="filter-row"><button class="is-active" type="button" data-mentions-filter="all">All</button><button type="button" data-mentions-filter="mentioned">Mentioned</button><button type="button" data-mentions-filter="monitoring">Monitoring</button><select data-mentions-source aria-label="AI mention source"></select><select data-mentions-model aria-label="AI mention model"></select><input type="search" placeholder="Search AI mentions..." data-mentions-search /></div>
+              <div class="entity-list" data-mentions-list></div>
+            </section>
+
+            <section class="account-view" data-account-panel="reports" hidden>
+              <div class="account-view-head"><div><h1>Reports</h1><p>Review content, tracking, ranking, and AI mention signals in one place.</p></div><div class="account-mini-actions"><button type="button" data-account-action="share-report">Create share link</button><button type="button" data-account-action="schedule-report">Schedule report</button><button type="button" data-account-action="export-reports">Export CSV</button></div></div>
+              <div class="content-status-strip" data-report-summary></div>
+              <div class="report-progress" data-report-progress aria-live="polite" aria-busy="false" hidden></div>
+              <div class="report-template-grid" data-report-templates></div>
+              <article class="search-chart-card report-chart-card"><div><strong>Report Overview</strong><span>Local signals</span></div><div class="report-chart" data-report-chart></div></article>
+              <div class="account-card-row"><article class="account-form-card" data-report-share></article><article class="account-form-card" data-report-schedule></article></div>
+              <div class="entity-list" data-report-list></div>
+            </section>
+
+            <section class="account-view" data-account-panel="seo-analysis" hidden>
+              <div class="account-view-head"><div><h1>SEO Analysis</h1><p>Find article metadata gaps, publishing blockers, and measurement opportunities.</p></div><button type="button" data-account-action="export-seo-analysis">Export CSV</button></div>
+              <div class="account-card-row"><article class="metric-card"><strong data-seo-score>0%</strong><span>SEO readiness</span></article></div>
+              <article class="search-chart-card"><div><strong>SEO Breakdown</strong><span>Local checks</span></div><div class="report-chart" data-seo-chart></div></article>
+              <div class="entity-list" data-seo-checks></div>
+              <h2>Issues</h2>
+              <div class="entity-list" data-seo-issues></div>
+              <h2>Opportunities</h2>
+              <div class="entity-list" data-seo-opportunities></div>
             </section>
 
             <section class="account-view" data-account-panel="getting-started" hidden>
-              <div class="account-view-head"><div><h1>Getting started</h1><p>Basic setup from the guided walkthrough, available without the overlay.</p></div></div>
-              <ol class="walkthrough-list">
+              <div class="account-view-head"><div><h1>Tours</h1><p>Guided setup steps for the dashboard launch path.</p></div><button class="account-primary" type="button" data-account-action="start-tour">Start walkthrough</button></div>
+              <p class="account-muted" data-setup-progress>0 of 0 complete</p>
+              <ol class="walkthrough-list" data-setup-list>
                 <li><strong>Customize your content</strong><p>Fill in business description, target audience, and keywords.</p></li>
                 <li><strong>Choose images</strong><p>Set generated image rules or reuse product images.</p></li>
                 <li><strong>Connect your blog platform</strong><p>Add CMS details and keep draft-first publishing enabled.</p></li>
@@ -649,51 +1108,120 @@
             </section>
 
             <section class="account-view" data-account-panel="billing" hidden>
-              <div class="account-view-head"><div><h1>Billing</h1><p>Trial and plan status for this account.</p></div><a class="account-primary" href="/#pricing">View plans</a></div>
-              <article class="billing-card"><small>Try Sir Bloggsalot Pro</small><strong>3 days free</strong><p>Then from $49/mo. Unlimited access to publish AI blog posts to your site daily after setup.</p></article>
+              <div class="account-view-head"><div><h1>Billing</h1><p>Trial and plan status for this account.</p></div><button class="account-primary" type="button" data-account-action="billing-portal">Open billing portal</button></div>
+              <div class="billing-grid">
+                <article class="billing-card"><small data-billing-status>Trial</small><strong data-billing-plan>Pro</strong><p data-billing-summary>Then from $49/mo. Unlimited access to publish AI blog posts to your site daily after setup.</p></article>
+                <article class="billing-card"><small>Payment method</small><strong data-billing-payment>Not connected</strong><p data-billing-portal-status>Stripe portal is not connected in this local dashboard shell.</p></article>
+              </div>
+              <div class="billing-progress" data-billing-progress aria-live="polite" aria-busy="false" hidden></div>
+              <div class="billing-alert" data-billing-alert hidden></div>
+              <div class="account-card-row">
+                <article class="account-form-card">
+                  <h2>Pro</h2>
+                  <p>Daily publishing, CMS setup, Search Console, images, and team access.</p>
+                  <button class="account-primary" type="button" data-billing-plan-action="Pro">Use Pro</button>
+                </article>
+                <article class="account-form-card">
+                  <h2>Pro+</h2>
+                  <p>Everything in Pro plus rankings, opportunity scoring, and AI mention tracking.</p>
+                  <button class="account-primary" type="button" data-billing-plan-action="Pro+">Use Pro+</button>
+                </article>
+              </div>
+              <div class="filter-row" role="group" aria-label="Billing period">
+                <button class="is-active" type="button" data-billing-period-action="annual">Annual</button>
+                <button type="button" data-billing-period-action="monthly">Monthly</button>
+                <button type="button" data-account-action="cancel-billing">Cancel plan</button>
+                <button type="button" data-account-action="reactivate-billing">Reactivate</button>
+              </div>
+              <h2>Invoices</h2>
+              <div class="entity-list" data-billing-invoices></div>
             </section>
 
             <section class="account-view" data-account-panel="help" hidden>
-              <div class="account-view-head"><div><h1>Help</h1><p>Get support for setup, publishing, and account access.</p></div><a class="account-primary" href="mailto:hello@sirbloggsalot.com">Contact support</a></div>
-              <article class="settings-guidelines"><strong>Support</strong><p>Send the account email, destination site, platform, and what you were trying to publish.</p></article>
+              <div class="account-view-head"><div><h1>Help</h1><p>Get support for setup, publishing, and account access.</p></div><button class="account-primary" type="button" data-account-action="create-support-ticket">Create ticket</button></div>
+              <article class="settings-guidelines"><strong>Support</strong><p>Submit the destination site, platform, and what you were trying to publish. Tickets stay in this account workspace until the live help provider is wired.</p></article>
+              <div class="entity-list" data-support-list></div>
             </section>
           </div>
 
-          <button class="account-help-bubble" type="button" aria-label="Open help chat">▰</button>
+          <button class="account-help-bubble" type="button" aria-label="Open support ticket" data-account-action="help-chat"><svg aria-hidden="true"><use href="#account-icon-chat"></use></svg></button>
+          <div class="account-dialog-backdrop" data-account-dialog hidden>
+            <div class="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-dialog-title">
+              <button type="button" aria-label="Close" data-dialog-close>×</button>
+              <h2 id="account-dialog-title" data-dialog-title>Account action</h2>
+              <p data-dialog-body></p>
+              <form class="account-dialog-form" data-dialog-form hidden></form>
+            </div>
+          </div>
         </div>
       </section>
 
       <section class="route-page" data-route-page="affiliate" hidden>
         <h1>Affiliate Program</h1>
-        <p>Affiliate details are not wired yet. This route is reserved so the footer link resolves cleanly.</p>
+        <p>Refer businesses that need consistent blog publishing and AI-search visibility. Partner tracking is handled manually during launch.</p>
+        <div class="route-grid">
+          <article><small>Who fits</small><h2>Agencies and operators</h2><p>Best for web designers, SEO consultants, local marketers, and niche operators with clients who need content velocity.</p></article>
+          <article><small>How to refer</small><h2>Warm intro first</h2><p>Email the business, website, decision-maker, and relevant context to hello@sirbloggsalot.com.</p></article>
+          <article><small>Status</small><h2>Manual launch program</h2><p>Automated partner links and dashboards can be added after the core account dashboard is stable.</p></article>
+        </div>
       </section>
 
       <section class="route-page" data-route-page="changelog" hidden>
         <h1>Changelog</h1>
-        <p>Product updates and release notes will live here after the launch structure is finalized.</p>
+        <p>Recent launch updates for the account experience.</p>
+        <div class="route-grid">
+          <article><small>Aug 2026</small><h2>Google login and account dashboard</h2><p>Authenticated workspaces, content planning, settings, billing state, invite links, and local account persistence are live.</p></article>
+          <article><small>Aug 2026</small><h2>Tracking and integrations shell</h2><p>CMS, Search Console, inventory feeds, rankings, AI mentions, and support now have local dashboard flows with real integration work clearly separated.</p></article>
+          <article><small>Next</small><h2>Production integrations</h2><p>Stripe portal, CMS publishing, inventory sync, Search Console OAuth, and live support delivery are the next external services to wire.</p></article>
+        </div>
       </section>
 
       <section class="route-page" data-route-page="privacy" hidden>
         <h1>Privacy Policy</h1>
-        <p>Legal copy is pending. This placeholder keeps the route available without publishing final legal text.</p>
+        <p>Sir Bloggsalot uses account information to operate your workspace, generate drafts, manage team access, and connect publishing or analytics services you authorize.</p>
+        <div class="route-grid">
+          <article><small>Account data</small><h2>Workspace basics</h2><p>We store profile, settings, content plans, products, locations, invites, and support requests needed to run the product.</p></article>
+          <article><small>Credentials</small><h2>Secret handling</h2><p>Local setup marks whether credentials are configured without displaying secret values. Production credential storage still needs final provider implementation.</p></article>
+          <article><small>Contact</small><h2>Questions</h2><p>Email hello@sirbloggsalot.com for account, privacy, or deletion requests.</p></article>
+        </div>
       </section>
 
       <section class="route-page" data-route-page="terms" hidden>
         <h1>Terms of Service</h1>
-        <p>Legal copy is pending. This placeholder keeps the route available without publishing final legal text.</p>
+        <p>Use Sir Bloggsalot to create, review, and publish content for sites you own or are authorized to manage.</p>
+        <div class="route-grid">
+          <article><small>Use</small><h2>Authorized publishing only</h2><p>You are responsible for the websites, CMS accounts, products, locations, and business claims connected to your workspace.</p></article>
+          <article><small>Review</small><h2>Draft-first by default</h2><p>Generated content should be reviewed for accuracy, compliance, and brand fit before publishing.</p></article>
+          <article><small>Billing</small><h2>Launch terms</h2><p>Plan, trial, cancellation, and refund terms should be confirmed in the account billing flow once Stripe is connected.</p></article>
+        </div>
       </section>
 
       <section class="route-page" data-route-page="case-study" hidden>
-        <h1>Case study</h1>
-        <p>Basic case-study route placeholder for `/case-studies/:slug`.</p>
+        <h1 data-case-study-title>Case study</h1>
+        <p data-case-study-summary>See how daily, structured publishing can grow search visibility for niche businesses.</p>
+        <div class="route-grid">
+          <article><small>Category</small><h2 data-case-study-category>Business</h2><p data-case-study-context>Consistent content builds topical depth and gives search engines more high-intent pages to index.</p></article>
+          <article><small>Result</small><h2 data-case-study-result>Visibility growth</h2><p data-case-study-result-copy>Content plans focus on searches that can turn into qualified visitors, leads, or customers.</p></article>
+          <article><small>Workflow</small><h2>How Sir Bloggsalot helps</h2><p>Research the topics, draft the article, add internal links and images, publish draft-first, then measure the result.</p></article>
+        </div>
+      </section>
+
+      <section class="route-page" data-route-page="invite" hidden>
+        <h1>Join Sir Bloggsalot</h1>
+        <p data-invite-message>Checking invitation...</p>
+        <div class="auth-panel">
+          <p class="auth-message" data-invite-detail aria-live="polite">Invitation links can only be accepted by the invited Google account.</p>
+          <button class="account-primary" type="button" data-account-action="accept-invite">Accept invite</button>
+          <a class="login-link" href="/login" data-invite-login>Sign in first</a>
+        </div>
       </section>
 
       <section class="route-page" data-route-page="not-found" hidden>
         <h1>Page not found</h1>
-        <p>This route is not in the first-pass local map.</p>
+        <p>The page may have moved. Use the navigation above to return to pricing, features, blog, or your account workspace.</p>
       </section>
     </main>
 
-    <script src="/app.js?v=20260805-account-dashboard"></script>
+    <script src="/app.js?v=20260814-pages-generator"></script>
   </body>
 </html>
