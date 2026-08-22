@@ -62,10 +62,11 @@ const required = [
   'Annual plan special pricing ends August 31st. Lock in $49/mo and start getting cited.',
   'class="public-promo-cta" href="/signup" data-auth-trial data-auth-trial-plan="Pro"',
   'aria-label="Dismiss limited-time pricing notice" data-public-promo-close',
-  "Feed the AI across ChatGPT, Google AI, Claude, Perplexity &amp; Gemini",
-  "<span>Feed the AI.</span>",
-  '<span class="gradient-text">Get cited.</span>',
-  "Connect your site. Tell us your industry. Sir Bloggsalot starts publishing",
+  "Get recommended in ChatGPT, Google AI, Claude, Perplexity &amp; Gemini",
+  "<span>Be the brand</span>",
+  '<span class="gradient-text">AI recommends.</span>',
+  "AI builds its answers from indexed articles, so Sir Bloggsalot publishes them for your site daily",
+  "structured the way AI cites, and tracks when AI mentions your business.",
   '<p class="hero-proof-points"><span>Preview before publishing</span><span>5-minute setup</span><span>Cancel anytime</span><span>Full refund within 30 days</span></p>',
   "People ask ChatGPT, Google AI, and Perplexity before they ever click a link.",
   "Whoever's indexed wins, and Sir Bloggsalot makes sure that's you.",
@@ -505,6 +506,11 @@ const required = [
 const missing = required.filter((needle) => !html.includes(needle));
 if (missing.length) {
   console.error(`Missing required homepage markers: ${missing.join(", ")}`);
+  process.exit(1);
+}
+
+if (!styles.includes(".hero-card {\n  display: none;") || !styles.includes(".hero-authenticated .hero-card {\n  display: block;")) {
+  console.error("Hero CSS should hide the public article card while restoring it for authenticated home.");
   process.exit(1);
 }
 

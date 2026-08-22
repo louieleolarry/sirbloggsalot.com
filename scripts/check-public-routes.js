@@ -85,11 +85,11 @@ async function fetchRoute(baseUrl, route, options = {}) {
     }
 
     const anonymousHome = await fetchRoute(baseUrl, "/");
-    assert.ok(anonymousHome.body.includes("Feed the AI across ChatGPT, Google AI, Claude, Perplexity &amp; Gemini"));
-    assert.ok(anonymousHome.body.includes("<span>Feed the AI.</span>"));
-    assert.ok(anonymousHome.body.includes('<span class="gradient-text">Get cited.</span>'));
-    assert.ok(!anonymousHome.body.includes("<span>Be the brand</span>"));
-    assert.ok(!anonymousHome.body.includes('<span class="gradient-text">AI recommends.</span>'));
+    assert.ok(anonymousHome.body.includes("Get recommended in ChatGPT, Google AI, Claude, Perplexity &amp; Gemini"));
+    assert.ok(anonymousHome.body.includes("<span>Be the brand</span>"));
+    assert.ok(anonymousHome.body.includes('<span class="gradient-text">AI recommends.</span>'));
+    assert.ok(anonymousHome.body.includes("AI builds its answers from indexed articles, so Sir Bloggsalot publishes them for your site daily"));
+    assert.ok(anonymousHome.body.includes("structured the way AI cites, and tracks when AI mentions your business."));
     assert.ok(!anonymousHome.body.includes("AI SEO content built around your brand"));
     assert.ok(!anonymousHome.body.includes("<span>SEO content built</span>"));
 
@@ -223,6 +223,7 @@ async function fetchRoute(baseUrl, route, options = {}) {
       headers: { cookie: signedInCookie },
     });
     assert.ok(signedInHome.body.includes("AI SEO content built around your brand"));
+    assert.ok(signedInHome.body.includes('class="hero hero-authenticated page-panel"'));
     assert.ok(signedInHome.body.includes("<span>SEO content built</span>"));
     assert.ok(signedInHome.body.includes('<span class="gradient-text">around your brand,</span>'));
     assert.ok(!signedInHome.body.includes("Get recommended in ChatGPT, Google AI, Claude, Perplexity &amp; Gemini"));
