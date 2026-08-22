@@ -1,10 +1,1 @@
-node_modules/
-local-secrets*
-data/account-store.json
-data/auth-store.json
-data/blawgy-store.json
-data/*.tmp
-research/blawgy/live-fixtures/*.json
-!research/blawgy/live-fixtures/README.md
-.DS_Store
-._*
+data/

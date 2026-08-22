@@ -3,11 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prepare:blawgy": "node scripts/prepare-blawgy-local-app.js",
-    "dev": "SIR_BLOGGS_ENABLE_BLAWGY_CLIENT=1 SIR_BLOGGS_TRUST_BLAWGY_BEARER=1 node server.js",
+    "dev": "node server.js",
     "start": "node server.js",
-    "check:blawgy-upstream": "node scripts/check-blawgy-upstream-assets.js",
-    "check:blawgy-strict": "npm run check:blawgy-upstream && SIR_BLOGGS_REQUIRE_BLAWGY_FIXTURES=1 npm run check",
-    "check": "node --check server.js && node --check app.js && node --check lib/blawgy-compat.js && node --check scripts/prepare-blawgy-local-app.js && node --check scripts/check-blawgy-static-contract.js && node --check scripts/check-blawgy-client-endpoints.js && node --check scripts/check-blawgy-live-fixtures.js && node --check scripts/check-blawgy-browser-smoke.js && node --check scripts/check-blawgy-session-bridge.js && node --check scripts/sanitize-blawgy-har.js && node scripts/prepare-blawgy-local-app.js && node scripts/check-blawgy-static-contract.js && node scripts/check-routes.js && node scripts/check-auth-helpers.js && node scripts/check-blawgy-compat.js && node scripts/check-blawgy-client-endpoints.js && node scripts/check-blawgy-live-fixtures.js && node scripts/check-blawgy-live-fixtures.js --self-test && node scripts/check-blawgy-browser-smoke.js && node scripts/check-blawgy-session-bridge.js"
+    "check": "node --check server.js && node --check app.js && node scripts/check-routes.js && node scripts/check-public-routes.js && node scripts/check-auth-helpers.js && node scripts/check-account-api.js && node scripts/check-faq-accordion.js && node scripts/check-render-escaping.js && node scripts/check-content-plan-render.js && node scripts/check-handoff-docs.js"
   }
 }

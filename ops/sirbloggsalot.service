@@ -1,0 +1,23 @@
+[Unit]
+Description=Sir Bloggsalot Node app
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/var/www/sirbloggsalot.com/html
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=5187
+Environment=SIR_BLOGGS_AUTH_STORE_PATH=/var/lib/sirbloggsalot/auth-store.json
+EnvironmentFile=/etc/sirbloggsalot.env
+ExecStart=/usr/bin/node /var/www/sirbloggsalot.com/html/server.js
+Restart=always
+RestartSec=5
+StateDirectory=sirbloggsalot
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
