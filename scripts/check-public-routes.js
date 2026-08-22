@@ -70,6 +70,14 @@ async function fetchRoute(baseUrl, route, options = {}) {
   return { response, contentType, location, body };
 }
 
+function setCookieHeaders(response) {
+  if (typeof response.headers.getSetCookie === "function") {
+    return response.headers.getSetCookie();
+  }
+  const header = response.headers.get("set-cookie");
+  return header ? [header] : [];
+}
+
 (async () => {
   const server = createServer();
   const port = await listen(server);
@@ -277,6 +285,32 @@ async function fetchRoute(baseUrl, route, options = {}) {
     });
     assert.strictEqual(signedInLoginEncodedSlashInvite.response.status, 302);
     assert.strictEqual(signedInLoginEncodedSlashInvite.location, "/account?view=billing");
+
+    const logout = await fetchRoute(baseUrl, "/api/auth/logout", {
+      method: "POST",
+      headers: { cookie: signedInCookie, "content-type": "application/json" },
+      body: "{}",
+    });
+    assert.strictEqual(logout.response.status, 200);
+    const logoutCookies = setCookieHeaders(logout.response).filter((header) => header.startsWith("sirbloggs_session="));
+    assert.ok(logoutCookies.length >= 3, "logout should clear host-only and domain-scoped auth cookies");
+    assert.ok(logoutCookies.some((header) => !header.includes("Domain=")), "logout should clear the host-only auth cookie");
+    assert.ok(logoutCookies.some((header) => header.includes("Domain=sirbloggsalot.com")), "logout should clear apex-domain auth cookies");
+    assert.ok(logoutCookies.some((header) => header.includes("Domain=.sirbloggsalot.com")), "logout should clear legacy dot-domain auth cookies");
+    for (const header of logoutCookies) {
+      assert.ok(header.includes("Max-Age=0"), "logout cookies should expire immediately");
+      assert.ok(header.includes("Expires=Thu, 01 Jan 1970 00:00:00 GMT"), "logout cookies should include a past Expires value");
+      assert.ok(header.includes("Path=/"), "logout cookies should clear the root auth path");
+    }
+
+    const staleCookieHome = await fetchRoute(baseUrl, "/", {
+      headers: { cookie: signedInCookie },
+    });
+    assert.ok(staleCookieHome.body.includes("Get recommended in ChatGPT, Google AI, Claude, Perplexity &amp; Gemini"));
+    assert.ok(staleCookieHome.body.includes("<span>Be the brand</span>"));
+    assert.ok(staleCookieHome.body.includes('<span class="gradient-text">AI recommends.</span>'));
+    assert.ok(!staleCookieHome.body.includes("AI SEO content built around your brand"));
+    assert.ok(!staleCookieHome.body.includes('class="hero hero-authenticated page-panel"'));
 
     const blog = await fetchRoute(baseUrl, "/blog");
     assert.strictEqual(blog.response.status, 200);

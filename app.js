@@ -8138,15 +8138,12 @@ logoutButtons.forEach((button) => {
     const next = `${window.location.pathname}${window.location.search || ""}`;
     try {
       await requestJson("/api/auth/logout", { method: "POST", body: "{}" });
-    } finally {
       authState.user = null;
       renderAuthState();
       setAuthMessage("Signed out.");
-
-      if (wasAccountRoute) {
-        window.history.pushState({}, "", `/login?next=${encodeURIComponent(next)}`);
-        renderRoute();
-      }
+      window.location.assign(wasAccountRoute ? `/login?next=${encodeURIComponent(next)}` : "/");
+    } catch (error) {
+      setAuthMessage(error.message || "Could not sign out. Please try again.");
     }
   });
 });

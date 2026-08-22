@@ -500,7 +500,14 @@ const document = {
   },
 };
 
-const location = { pathname: "/account", search: "", origin: "https://sirbloggsalot.com" };
+const location = {
+  pathname: "/account",
+  search: "",
+  origin: "https://sirbloggsalot.com",
+  assign(next) {
+    setLocation(next);
+  },
+};
 let formEntries = [];
 function setLocation(next) {
   const url = new URL(next, location.origin);

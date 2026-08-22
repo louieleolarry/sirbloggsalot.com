@@ -393,10 +393,30 @@ function canonicalDashboardRoute(url) {
   return `/account?${outputParams.toString()}`;
 }
 
-function cookieHeader(request, value, maxAge) {
-  const forwardedProto = String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim();
-  const secure = forwardedProto === "https" ? "; Secure" : "";
-  return `${authCookieName}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
+function isSecureRequest(request) {
+  const forwardedProto = String(request.headers["x-forwarded-proto"] || "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase();
+  if (forwardedProto === "https") return true;
+
+  const host = String(request.headers.host || "").toLowerCase();
+  return host === "sirbloggsalot.com" || host === "www.sirbloggsalot.com";
+}
+
+function cookieHeader(request, value, maxAge, options = {}) {
+  const secure = isSecureRequest(request) ? "; Secure" : "";
+  const domain = options.domain ? `; Domain=${options.domain}` : "";
+  const expires = maxAge === 0 ? "; Expires=Thu, 01 Jan 1970 00:00:00 GMT" : "";
+  return `${authCookieName}=${encodeURIComponent(value)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${expires}${domain}${secure}`;
+}
+
+function clearAuthCookieHeaders(request) {
+  return [
+    cookieHeader(request, "", 0),
+    cookieHeader(request, "", 0, { domain: "sirbloggsalot.com" }),
+    cookieHeader(request, "", 0, { domain: ".sirbloggsalot.com" }),
+  ];
 }
 
 function publicUser(user) {
@@ -4873,7 +4893,7 @@ async function serveApi(req, res, url) {
   if (req.method === "POST" && url.pathname === "/api/auth/logout") {
     await deleteSession(req);
     const headers = {
-      "set-cookie": cookieHeader(req, "", 0),
+      "set-cookie": clearAuthCookieHeaders(req),
     };
     const accept = String(req.headers.accept || "");
     const contentType = String(req.headers["content-type"] || "");
