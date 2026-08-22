@@ -232,13 +232,13 @@ function displayNameForUser(user) {
 function renderAuthenticatedHomeHtml(html) {
   return html
     .replace(
-      "Get recommended in ChatGPT, Google AI, Claude, Perplexity &amp; Gemini",
+      "Feed the AI across ChatGPT, Google AI, Claude, Perplexity &amp; Gemini",
       "AI SEO content built around your brand"
     )
     .replace(
       `<h1>
-            <span>Be the brand</span>
-            <span class="gradient-text">AI recommends.</span>
+            <span>Feed the AI.</span>
+            <span class="gradient-text">Get cited.</span>
           </h1>`,
       `<h1>
             <span>SEO content built</span>
@@ -247,8 +247,8 @@ function renderAuthenticatedHomeHtml(html) {
           </h1>`
     )
     .replace(
-      `Your customers ask ChatGPT and Google AI before they ever click a link. Sir Bloggsalot publishes
-            the content AI tools cite, so your business is the one they recommend.`,
+      `Connect your site. Tell us your industry. Sir Bloggsalot starts publishing
+            the content AI tools quote, so your business becomes the source they cite.`,
       `Sir Bloggsalot writes SEO articles using your site, services, locations, tone, and internal links,
             then humanizes the output so it never reads like a ChatGPT draft. Every post lands as a draft
             you can preview before it publishes.`

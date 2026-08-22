@@ -85,9 +85,11 @@ async function fetchRoute(baseUrl, route, options = {}) {
     }
 
     const anonymousHome = await fetchRoute(baseUrl, "/");
-    assert.ok(anonymousHome.body.includes("Get recommended in ChatGPT, Google AI, Claude, Perplexity &amp; Gemini"));
-    assert.ok(anonymousHome.body.includes("<span>Be the brand</span>"));
-    assert.ok(anonymousHome.body.includes('<span class="gradient-text">AI recommends.</span>'));
+    assert.ok(anonymousHome.body.includes("Feed the AI across ChatGPT, Google AI, Claude, Perplexity &amp; Gemini"));
+    assert.ok(anonymousHome.body.includes("<span>Feed the AI.</span>"));
+    assert.ok(anonymousHome.body.includes('<span class="gradient-text">Get cited.</span>'));
+    assert.ok(!anonymousHome.body.includes("<span>Be the brand</span>"));
+    assert.ok(!anonymousHome.body.includes('<span class="gradient-text">AI recommends.</span>'));
     assert.ok(!anonymousHome.body.includes("AI SEO content built around your brand"));
     assert.ok(!anonymousHome.body.includes("<span>SEO content built</span>"));
 
